@@ -2,7 +2,7 @@
 //
 // CONFIGURACIÓ: enganxa aquí l'enllaç del teu feed JSON de Behold
 // (té aquesta forma: https://feeds.behold.so/XXXXXXXXXXXX).
-const BEHOLD_FEED_URL = "";
+const BEHOLD_FEED_URL = "https://feeds.behold.so/c9eOgc1NQvGcNsXAoi3F";
 
 const CACHE_SEGONS = 3 * 60 * 60; // 3 hores
 

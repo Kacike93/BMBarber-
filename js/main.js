@@ -191,7 +191,10 @@ tabs.forEach((tab, i) => {
   }
 })();
 
-// Formulari "Uneix-te": s'envia per FormSubmit sense sortir de la web
+// Formulari "Uneix-te"
+// Enganxa aquí la clau (Access Key) de Web3Forms que et va arribar per correu.
+// Mentre estigui buida, el formulari fa servir FormSubmit.
+const WEB3FORMS_KEY = "2f57159e-67eb-4c06-a60e-06cf45017ed0";
 (function () {
   const form = document.getElementById("form-unete");
   if (!form) return;
@@ -199,30 +202,47 @@ tabs.forEach((tab, i) => {
   const status = document.getElementById("form-status");
   const btn = form.querySelector('button[type="submit"]');
   const show = (html, type) => { status.hidden = false; status.className = `form__status form__status--${type}`; status.innerHTML = html; };
+  const esc = (t) => String(t).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+  async function sendWeb3Forms(data) {
+    const res = await fetch("https://api.web3forms.com/submit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({
+        access_key: WEB3FORMS_KEY,
+        subject: "Nova sol·licitud des de la web",
+        from_name: "Web BM Barberà",
+        replyto: data.email,
+        ...data,
+      }),
+    });
+    const out = await res.json().catch(() => ({}));
+    if (!(res.ok && out.success)) throw new Error(out.message || `Error ${res.status}`);
+  }
+
+  async function sendFormSubmit(data) {
+    const res = await fetch(`https://formsubmit.co/ajax/${EMAIL}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({ _subject: "Nova sol·licitud des de la web", _template: "table", _captcha: "false", ...data }),
+    });
+    const out = await res.json().catch(() => ({}));
+    if (!(res.ok && String(out.success) === "true")) throw new Error(out.message || `Error ${res.status}`);
+  }
 
   form.addEventListener("submit", async (e) => {
     if (!location.protocol.startsWith("http") || window.__PREVIEW) return; // vista prèvia
     e.preventDefault();
     if (form.querySelector('input[name="_honey"]').value) return;
-    const data = Object.fromEntries(new FormData(form).entries());
-    delete data._next; delete data._honey;
+    const all = Object.fromEntries(new FormData(form).entries());
+    const data = Object.fromEntries(Object.entries(all).filter(([k]) => !k.startsWith("_") && !["access_key", "subject", "redirect"].includes(k)));
     btn.disabled = true; const label = btn.textContent; btn.textContent = "Enviant…";
     try {
-      const res = await fetch(`https://formsubmit.co/ajax/${EMAIL}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify(data),
-      });
-      const out = await res.json().catch(() => ({}));
-      if (res.ok && String(out.success) === "true") {
-        location.href = "/gracias.html";
-        return;
-      }
-      throw new Error(out.message || `Error ${res.status}`);
+      await (WEB3FORMS_KEY ? sendWeb3Forms(data) : sendFormSubmit(data));
+      location.href = "/gracias.html";
     } catch (err) {
-      const body = encodeURIComponent(Object.entries(data).filter(([k]) => !k.startsWith("_")).map(([k, v]) => `${k}: ${v}`).join("\n"));
-      show(`No s'ha pogut enviar ara mateix. Torna-ho a provar en uns minuts o <a href="mailto:${EMAIL}?subject=${encodeURIComponent("Sol·licitud des de la web")}&body=${body}">envia'ns un correu directament</a>.`, "error");
-      console.warn("Formulari:", err);
+      const body = encodeURIComponent(Object.entries(data).map(([k, v]) => `${k}: ${v}`).join("\n"));
+      show(`No s'ha pogut enviar ara mateix${err && err.message ? ` <small>(${esc(err.message)})</small>` : ""}. Torna-ho a provar en uns minuts o <a href="mailto:${EMAIL}?subject=${encodeURIComponent("Sol·licitud des de la web")}&body=${body}">envia'ns un correu directament</a>.`, "error");
     } finally {
       btn.disabled = false; btn.textContent = label;
     }
