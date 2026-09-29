@@ -22,16 +22,6 @@ const EQUIPOS = {
   ],
 };
 
-const GALERIA = [
-  { foto: "images/galeria/lanzamiento-bonilla.webp", texto: "A. Bonilla preparant el llançament" },
-  { foto: "images/galeria/choque-manos.webp", texto: "Encaixada de mans abans del partit" },
-  { foto: "images/galeria/banquillo-celebra.webp", texto: "La banqueta celebrant un gol" },
-  { foto: "images/galeria/femenino-tiempo-muerto.webp", texto: "Temps mort de l'equip femení" },
-  { foto: "images/galeria/aficion-permanencia.webp", texto: "Tota la família del club després de la permanència" },
-  { foto: "images/galeria/charla-equipo.webp", texto: "Xerrada del sènior abans de començar" },
-  { foto: "images/galeria/abrazo-permanencia.webp", texto: "Els grans i els petits, junts a la celebració" },
-  { foto: "images/galeria/familia-club.webp", texto: "Foto de família del club" },
-];
 
 
 /* Classificació del primer equip: DADES DE RESERVA.
@@ -151,18 +141,6 @@ tabs.forEach((tab, i) => {
   });
 });
 
-// Galería
-const gallery = document.getElementById("gallery");
-const galList = GALERIA.map(g => ({ src: g.foto, caption: g.texto }));
-GALERIA.forEach((g, i) => {
-  const b = document.createElement("button");
-  b.type = "button";
-  b.setAttribute("aria-label", `Amplia: ${g.texto}`);
-  b.innerHTML = `<img src="${g.foto}" alt="${g.texto}" loading="lazy">`;
-  b.addEventListener("click", () => openLb(galList, i));
-  gallery.appendChild(b);
-});
-
 // Classificació: primer intenta les dades en directe (/api/classificacio);
 // si no hi ha connexió amb la federació, mostra les dades de reserva de dalt.
 (function () {
@@ -262,4 +240,55 @@ GALERIA.forEach((g, i) => {
     });
   }, { threshold: 0.2 });
   cards.forEach(c => io.observe(c));
+})();
+
+// Instagram: últimes publicacions (amb fotos de reserva si no hi ha connexió)
+(function () {
+  const grid = document.getElementById("insta-grid");
+  if (!grid) return;
+  const PROFILE = "https://www.instagram.com/bm_barbera";
+  const icon = {
+    video: '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>',
+    album: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="7" y="7" width="14" height="14" rx="2"/><path d="M3 17V5a2 2 0 0 1 2-2h12"/></svg>',
+  };
+  const fmt = d => d ? new Date(d).toLocaleDateString("ca-ES", { day: "numeric", month: "short" }) : "";
+
+  function render(posts) {
+    grid.innerHTML = "";
+    posts.slice(0, 6).forEach(p => {
+      const a = document.createElement("a");
+      a.className = "insta__post";
+      a.href = p.url || PROFILE; a.target = "_blank"; a.rel = "noopener";
+      const txt = (p.text || "").replace(/\s+/g, " ").trim();
+      a.setAttribute("aria-label", txt ? `Publicació d'Instagram: ${txt.slice(0, 80)}` : "Publicació d'Instagram");
+      a.innerHTML = `
+        <img src="${p.img}" alt="" loading="lazy">
+        ${icon[p.tipus] ? `<span class="insta__type">${icon[p.tipus]}</span>` : ""}
+        <span class="insta__over">
+          ${p.data ? `<span class="insta__date">${fmt(p.data)}</span>` : ""}
+          ${txt ? `<span class="insta__text">${txt}</span>` : ""}
+        </span>`;
+      a.querySelector("img").alt = "";
+      grid.appendChild(a);
+    });
+  }
+
+  // Esquelet mentre carrega
+  grid.innerHTML = Array.from({ length: 6 }, () => '<span class="insta__post insta__post--skel"></span>').join("");
+  const fallback = () => {
+    grid.classList.add("insta__grid--empty");
+    grid.innerHTML = `
+      <a class="insta__empty" href="${PROFILE}" target="_blank" rel="noopener">
+        <span class="insta__empty-icon"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".6" fill="currentColor"/></svg></span>
+        <span class="insta__empty-text"><strong>Les nostres últimes publicacions, a Instagram</strong><span>Partits, resultats i el dia a dia de tots els equips a @bm_barbera</span></span>
+        <span class="btn btn--yellow">Obrir Instagram ↗</span>
+      </a>`;
+    const cta = document.querySelector(".insta__cta"); if (cta) cta.hidden = true;
+  };
+
+  if (!location.protocol.startsWith("http")) return fallback();
+  fetch("/api/instagram")
+    .then(r => r.ok ? r.json() : Promise.reject(r.status))
+    .then(d => (d.posts && d.posts.length) ? render(d.posts) : fallback())
+    .catch(fallback);
 })();
