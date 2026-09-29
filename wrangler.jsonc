@@ -1,6 +1,6 @@
 {
   // Ha de coincidir amb el nom del Worker a Cloudflare
-  "name": "bmbarber",
+  "name": "bmbarbera",
   "main": "src/worker.js",
   "compatibility_date": "2026-06-01",
   "assets": {
