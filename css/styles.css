@@ -288,6 +288,35 @@ p { margin: 0 0 1em; }
 .masonry img { width: 100%; height: auto; transition: transform .35s ease; }
 .masonry button:hover img { transform: scale(1.03); }
 
+/* ---------- Patrocinadors ---------- */
+.sponsors { background: var(--bg-3); color: var(--white); overflow: hidden; }
+.marquee {
+  position: relative; overflow: hidden; padding-block: .5rem;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+          mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+.marquee__track { display: flex; gap: 1.25rem; width: max-content; animation: marquee var(--dur, 30s) linear infinite; }
+.marquee:hover .marquee__track, .marquee:focus-within .marquee__track { animation-play-state: paused; }
+@keyframes marquee { to { transform: translateX(-50%); } }
+.sponsor {
+  flex: none; width: 240px; height: 120px; padding: 1.25rem 1.5rem;
+  display: grid; place-items: center;
+  background: var(--white); border-radius: var(--radius);
+  box-shadow: 0 10px 24px rgba(0,0,0,.25);
+  text-decoration: none; transition: transform .2s ease, box-shadow .2s ease;
+}
+a.sponsor:hover { transform: translateY(-4px); box-shadow: 0 16px 30px rgba(0,0,0,.35); }
+.sponsor img { max-width: 100%; max-height: 72px; width: auto; height: auto; object-fit: contain; }
+.sponsor__name { font: 900 2rem/1 var(--display); color: var(--green-deep); text-align: center; }
+.sponsors__cta { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem 2rem; margin-top: 2.5rem; padding: 1.5rem 1.75rem; border-radius: var(--radius); background: var(--bg-1); }
+.sponsors__cta p { margin: 0; font-weight: 600; font-size: 1.1rem; }
+@media (max-width: 600px) { .sponsor { width: 180px; height: 96px; padding: 1rem; } .sponsor img { max-height: 56px; } }
+@media (prefers-reduced-motion: reduce) {
+  .marquee { -webkit-mask-image: none; mask-image: none; }
+  .marquee__track { flex-wrap: wrap; justify-content: center; width: auto; padding-inline: 1.25rem; }
+  .marquee__track > [aria-hidden="true"] { display: none; }
+}
+
 /* ---------- Únete ---------- */
 .join { background: var(--bg-2); color: var(--white); position: relative; overflow: hidden; }
 .join::after { content: ""; position: absolute; right: -80px; top: -80px; width: 320px; height: 320px; border-radius: 50%; border: 40px solid rgba(255,210,26,.12); pointer-events: none; }

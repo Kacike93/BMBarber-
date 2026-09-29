@@ -5,16 +5,16 @@
    ========================================================== */
 const EQUIPOS = {
   femenino: [
-    { foto: "images/equipos/equipo-03.webp", nombre: "Sènior femení" },
-    { foto: "images/equipos/equipo-00.webp", nombre: "Juvenil femení" },
+    { foto: "images/equipos/equipo-03.webp", nombre: "Juvenil femení" },
+    { foto: "images/equipos/equipo-00.webp", nombre: "Cadet femení" },
     { foto: "images/equipos/equipo-05.webp", nombre: "Infantil femení" },
   ],
   masculino: [
     { foto: "images/equipos/equipo-06.webp", nombre: "Sènior A", detalle: "Lliga Or" },
     { foto: "images/equipos/equipo-07.webp", nombre: "Sènior B" },
     { foto: "images/equipos/equipo-04.webp", nombre: "Veterans" },
-    { foto: "images/equipos/equipo-01.webp", nombre: "Cadet masculí" },
-    { foto: "images/equipos/equipo-02.webp", nombre: "Infantil masculí" },
+    { foto: "images/equipos/equipo-01.webp", nombre: "Juvenil masculí" },
+    { foto: "images/equipos/equipo-02.webp", nombre: "Cadet masculí" },
     { foto: "images/equipos/equipo-09.webp", nombre: "Aleví A" },
     { foto: "images/equipos/equipo-11.webp", nombre: "Aleví B" },
     { foto: "images/equipos/equipo-10.webp", nombre: "Benjamí" },
@@ -53,6 +53,18 @@ const CLASSIFICACIO = {
     { equip: "BM Barberà 'A'", pt: 0, pj: 2, pg: 0, pe: 0, pp: 2, gf: 48, gc: 71, ratxa: "PP", nosaltres: true },
   ],
 };
+
+
+/* Patrocinadors.
+   Per afegir-ne un: copia una línia, posa el logo a images/patrocinadors/
+   i, si en té, l'adreça web a "web". Sense "logo" es mostra el nom en text. */
+const PATROCINADORS = [
+  { nom: "ABC Barberà", logo: "images/patrocinadors/abc-barbera.webp", web: "" },
+  { nom: "Goti Maquinaria", logo: "images/patrocinadors/goti-maquinaria.webp", web: "" },
+  { nom: "Univertec", logo: "images/patrocinadors/univertec.webp", web: "" },
+  { nom: "El Caliu", logo: "images/patrocinadors/el-caliu.webp", web: "" },
+  { nom: "Revalco", logo: "", web: "" },
+];
 
 /* ==========================================================
    A partir d'aquí no cal tocar res
@@ -205,4 +217,35 @@ GALERIA.forEach((g, i) => {
 (function () {
   const next = document.querySelector('#form-unete input[name="_next"]');
   if (next && location.protocol.startsWith("http")) next.value = location.origin + "/gracias.html";
+})();
+
+// Patrocinadors: carrusel infinit
+(function () {
+  const track = document.querySelector("#sponsors .marquee__track");
+  if (!track) return;
+  const tile = (p, hidden) => {
+    const el = document.createElement(p.web ? "a" : "div");
+    el.className = "sponsor";
+    if (p.web) { el.href = p.web; el.target = "_blank"; el.rel = "noopener"; }
+    if (hidden) { el.setAttribute("aria-hidden", "true"); if (p.web) el.tabIndex = -1; }
+    el.innerHTML = p.logo
+      ? `<img src="${p.logo}" alt="${hidden ? "" : p.nom}" loading="lazy">`
+      : `<span class="sponsor__name">${p.nom}</span>`;
+    return el;
+  };
+  // Omplim prou logos per cobrir pantalles amples i dupliquem per al bucle
+  const set = [];
+  while (set.length < 8) set.push(...PATROCINADORS);
+  set.forEach((p, i) => track.appendChild(tile(p, i >= PATROCINADORS.length)));
+  set.forEach(p => track.appendChild(tile(p, true)));
+  track.style.setProperty("--dur", `${set.length * 3.5}s`);
+
+  const foot = document.getElementById("footer-sponsors");
+  if (foot) foot.innerHTML = PATROCINADORS.map(p => p.nom).join("<br>");
+
+  const cta = document.getElementById("sponsor-cta");
+  if (cta) cta.addEventListener("click", () => {
+    const sel = document.querySelector('select[name="interes"]');
+    if (sel) sel.value = "Patrocinar";
+  });
 })();
