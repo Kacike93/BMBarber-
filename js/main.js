@@ -191,10 +191,42 @@ tabs.forEach((tab, i) => {
   }
 })();
 
-// Formulari: després d'enviar, torna a la pàgina de gràcies d'aquesta web
+// Formulari "Uneix-te": s'envia per FormSubmit sense sortir de la web
 (function () {
-  const next = document.querySelector('#form-unete input[name="_next"]');
-  if (next && location.protocol.startsWith("http")) next.value = location.origin + "/gracias.html";
+  const form = document.getElementById("form-unete");
+  if (!form) return;
+  const EMAIL = "bmbarbera@hotmail.com";
+  const status = document.getElementById("form-status");
+  const btn = form.querySelector('button[type="submit"]');
+  const show = (html, type) => { status.hidden = false; status.className = `form__status form__status--${type}`; status.innerHTML = html; };
+
+  form.addEventListener("submit", async (e) => {
+    if (!location.protocol.startsWith("http") || window.__PREVIEW) return; // vista prèvia
+    e.preventDefault();
+    if (form.querySelector('input[name="_honey"]').value) return;
+    const data = Object.fromEntries(new FormData(form).entries());
+    delete data._next; delete data._honey;
+    btn.disabled = true; const label = btn.textContent; btn.textContent = "Enviant…";
+    try {
+      const res = await fetch(`https://formsubmit.co/ajax/${EMAIL}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify(data),
+      });
+      const out = await res.json().catch(() => ({}));
+      if (res.ok && String(out.success) === "true") {
+        location.href = "/gracias.html";
+        return;
+      }
+      throw new Error(out.message || `Error ${res.status}`);
+    } catch (err) {
+      const body = encodeURIComponent(Object.entries(data).filter(([k]) => !k.startsWith("_")).map(([k, v]) => `${k}: ${v}`).join("\n"));
+      show(`No s'ha pogut enviar ara mateix. Torna-ho a provar en uns minuts o <a href="mailto:${EMAIL}?subject=${encodeURIComponent("Sol·licitud des de la web")}&body=${body}">envia'ns un correu directament</a>.`, "error");
+      console.warn("Formulari:", err);
+    } finally {
+      btn.disabled = false; btn.textContent = label;
+    }
+  });
 })();
 
 // Patrocinadors: carrusel infinit

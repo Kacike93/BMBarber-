@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;0,800;0,900;1,800;1,900&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=20260929c">
+  <link rel="stylesheet" href="css/styles.css?v=20260929d">
 </head>
 <body>
 
@@ -276,13 +276,13 @@
           </label>
           <label class="field">
             <span>Telèfon</span>
-            <input type="tel" name="Telèfon" autocomplete="tel">
+            <input type="tel" name="Telefon" autocomplete="tel">
           </label>
         </div>
         <div class="field-row">
           <label class="field">
             <span>M'interessa</span>
-            <select name="M'interessa" required>
+            <select name="Interes" required>
               <option value="">Tria una opció</option>
               <option>Jugar (femení)</option>
               <option>Jugar (masculí)</option>
@@ -292,7 +292,7 @@
           </label>
           <label class="field">
             <span>Any de naixement</span>
-            <input type="number" name="Any de naixement" min="1950" max="2025" inputmode="numeric">
+            <input type="number" name="Any_naixement" min="1950" max="2025" inputmode="numeric">
           </label>
         </div>
         <label class="field">
@@ -300,6 +300,7 @@
           <textarea name="Missatge" rows="4"></textarea>
         </label>
         <button class="btn btn--yellow btn--block" type="submit">Envia la sol·licitud</button>
+        <p class="form__status" id="form-status" role="status" aria-live="polite" hidden></p>
       </form>
     </div>
   </section>
@@ -343,6 +344,6 @@
   <button class="lightbox__nav lightbox__next" aria-label="Foto següent">›</button>
 </dialog>
 
-<script src="js/main.js?v=20260929c"></script>
+<script src="js/main.js?v=20260929d"></script>
 </body>
 </html>
