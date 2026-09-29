@@ -42,6 +42,8 @@ body {
 }
 img { max-width: 100%; height: auto; display: block; }
 [hidden] { display: none !important; }
+/* Punt volat català (l·l): la tipografia Barlow el dibuixa enganxat a les eles */
+.pv { display: inline-block; font-family: Arial, Helvetica, sans-serif; font-weight: 400; margin: 0 -.03em; transform: scale(.85); }
 a { color: inherit; }
 h1, h2, h3 { font-family: var(--display); font-weight: 900; line-height: .95; margin: 0; letter-spacing: .005em; }
 h2 { font-size: clamp(2.4rem, 5vw, 3.8rem); color: var(--yellow); }
@@ -71,12 +73,13 @@ p { margin: 0 0 1em; }
 .btn--ghost:hover { border-color: var(--white); background: rgba(255,255,255,.08); }
 .btn--block { width: 100%; }
 
-/* ---------- Franja tricolor (del escudo) ---------- */
-.tricolor { display: grid; grid-template-columns: 1fr 1fr 1fr; height: 10px; }
-.tricolor i:nth-child(1) { background: var(--red); }
-.tricolor i:nth-child(2) { background: var(--yellow); }
-.tricolor i:nth-child(3) { background: var(--green-mid); }
-.tricolor--thin { height: 6px; }
+/* ---------- Franja de la bandera de Barberà del Vallès (vermell 3 · groc 1 · verd 1) ---------- */
+:root { --flag-red: #D7141A; --flag-yellow: #FCD800; --flag-green: #16923F; }
+.tricolor { display: grid; grid-template-rows: 3fr 1fr 1fr; height: 15px; }
+.tricolor i:nth-child(1) { background: var(--flag-red); }
+.tricolor i:nth-child(2) { background: var(--flag-yellow); }
+.tricolor i:nth-child(3) { background: var(--flag-green); }
+.tricolor--thin { height: 10px; }
 
 /* ---------- Cabecera ---------- */
 .topbar {
@@ -135,7 +138,7 @@ p { margin: 0 0 1em; }
     radial-gradient(ellipse 70% 60% at 50% 45%, rgba(6,54,29,.38) 0%, rgba(6,54,29,.72) 75%),
     linear-gradient(180deg, rgba(6,54,29,.55) 0%, rgba(6,54,29,.15) 40%, rgba(6,54,29,.9) 100%);
 }
-.hero::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 10px; background: linear-gradient(90deg, var(--red) 0 33.33%, var(--yellow) 33.33% 66.66%, var(--green-mid) 66.66%); }
+.hero::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 24px; background: linear-gradient(180deg, var(--flag-red) 0 60%, var(--flag-yellow) 60% 80%, var(--flag-green) 80% 100%); }
 .hero__inner { max-width: 980px; display: flex; flex-direction: column; align-items: center; }
 .hero__crest { width: clamp(92px, 11vw, 140px); height: auto; margin-bottom: 1.5rem; filter: drop-shadow(0 12px 28px rgba(0,0,0,.45)); animation: heroIn .9s .1s both cubic-bezier(.2,.7,.2,1); }
 .hero h1 {
@@ -153,11 +156,7 @@ p { margin: 0 0 1em; }
   color: var(--white); margin: -.2rem 0 1.4rem;
   animation: heroIn .9s .35s both cubic-bezier(.2,.7,.2,1);
 }
-.hero__slogan::before, .hero__slogan::after {
-  content: ""; width: 38px; height: 4px; border-radius: 2px; flex: none;
-  background: linear-gradient(90deg, var(--red) 0 33.33%, var(--yellow) 33.33% 66.66%, var(--green-mid) 66.66%);
-}
-@media (max-width: 520px) { .hero__slogan::before, .hero__slogan::after { display: none; } .hero__slogan { display: block; max-width: 24ch; } }
+@media (max-width: 520px) { .hero__slogan { display: block; max-width: 24ch; } }
 .hero__lead { font-size: clamp(1rem, 1.5vw, 1.15rem); max-width: 42ch; color: rgba(255,255,255,.8); margin-bottom: 2.2rem; animation: heroIn .9s .4s both cubic-bezier(.2,.7,.2,1); }
 .hero__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: .75rem; animation: heroIn .9s .55s both cubic-bezier(.2,.7,.2,1); }
 .hero__scroll { position: absolute; bottom: 34px; left: 50%; width: 26px; height: 42px; margin-left: -13px; border: 2px solid rgba(255,255,255,.6); border-radius: 14px; }
@@ -170,19 +169,34 @@ p { margin: 0 0 1em; }
 /* ---------- El club ---------- */
 .club { background: var(--bg-2); color: var(--white); }
 .club__grid { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(2rem, 6vw, 5rem); align-items: center; }
-.club__copy h2 { margin-bottom: 1.5rem; max-width: 12ch; }
+.club__title { display: flex; align-items: center; gap: clamp(1rem, 2.5vw, 1.75rem); margin-bottom: 1.5rem; }
+.club__copy h2 { margin: 0; max-width: 12ch; }
+.club__crest { flex: none; width: auto; height: clamp(84px, 9vw, 118px); filter: drop-shadow(0 8px 16px rgba(0,0,0,.4)); transform: rotate(4deg); transition: transform .35s ease; }
+.club__title:hover .club__crest { transform: rotate(-4deg) scale(1.05); }
 .club__copy p { max-width: 60ch; color: var(--text-soft); }
-.facts { display: grid; grid-template-columns: repeat(3, auto); justify-content: start; gap: 1rem 2.5rem; margin: 2.25rem 0 0; padding-top: 1.75rem; border-top: 3px solid var(--yellow); }
+.club__copy .club__closing { color: var(--white); font-weight: 600; font-size: 1.12rem; padding-left: 1rem; border-left: 3px solid var(--yellow); }
+.facts { display: grid; grid-template-columns: repeat(4, auto); justify-content: start; gap: 1.25rem 2.25rem; margin: 2.25rem 0 0; padding-top: 1.75rem; border-top: 3px solid var(--yellow); }
 .facts div { margin: 0; }
+.facts__icon { display: grid; place-items: center; width: 38px; height: 38px; margin-bottom: .7rem; border-radius: 11px; color: var(--yellow); background: rgba(255,210,26,.12); box-shadow: inset 0 0 0 1px rgba(255,210,26,.3); }
+.facts__icon svg { width: 20px; height: 20px; }
 .facts dt { font: 900 2.4rem/1 var(--display); color: var(--yellow); }
 .facts dd { margin: .3rem 0 0; font-size: .92rem; color: var(--text-soft); max-width: 14ch; line-height: 1.35; }
-.club__photos { position: relative; aspect-ratio: 4 / 4.4; }
-.club__p1 { position: absolute; right: 0; top: 0; width: 72%; height: 82%; object-fit: cover; border-radius: var(--radius); }
-.club__p2 { position: absolute; left: 0; bottom: 0; width: 64%; aspect-ratio: 1072 / 561; object-fit: cover; border-radius: var(--radius); border: 6px solid var(--bg-2); box-shadow: 0 18px 40px rgba(0,0,0,.35); }
+.club__photos { position: relative; aspect-ratio: 1 / 1.1; }
+.club__photos img { position: absolute; object-fit: cover; border-radius: var(--radius); box-shadow: 0 18px 40px rgba(0,0,0,.35); }
+.club__p1 { right: 0; top: 20%; width: 72%; aspect-ratio: 3 / 2; z-index: 1; }
+.club__p3 { left: 0; top: 0; width: 48%; aspect-ratio: 4 / 3; border: 6px solid var(--bg-2); transform: rotate(-3deg); z-index: 2; }
+.club__p2 { left: 2%; bottom: 0; width: 52%; aspect-ratio: 719 / 593; object-position: 50% 30%; border: 6px solid var(--bg-2); z-index: 3; }
+.club__p4 { right: 3%; bottom: 2%; width: 34%; aspect-ratio: 4 / 5; object-position: 50% 40%; border: 6px solid var(--bg-2); transform: rotate(3deg); z-index: 3; }
 @media (max-width: 860px) {
   .club { background: var(--bg-2); color: var(--white); }
 .club__grid { grid-template-columns: 1fr; }
-  .facts { grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+  .facts { grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+}
+@media (min-width: 861px) and (max-width: 1100px) {
+  .facts { gap: 1.25rem 1.4rem; }
+}
+@media (max-width: 560px) {
+  .facts { grid-template-columns: repeat(2, 1fr); gap: 1.5rem 1rem; }
   .facts dt { font-size: 2rem; }
 }
 
@@ -292,12 +306,13 @@ p { margin: 0 0 1em; }
 .f--e { background: #B08900; }
 .f--p { background: var(--red); }
 .is-us .f { box-shadow: 0 0 0 2px var(--yellow); }
-.standings__foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem 1.25rem; border-top: 1px solid rgba(255,255,255,.08); }
+.standings__foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 1rem; padding: 1rem 1.25rem; border-top: 1px solid rgba(255,255,255,.08); }
 .standings__legend { margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; font-size: .85rem; color: var(--text-soft); }
 .standings__legend .f { margin-left: .5rem; }
 .standings__legend .f:first-child { margin-left: 0; }
 .live-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #3DDC84; margin-right: .5rem; vertical-align: middle; box-shadow: 0 0 0 0 rgba(61,220,132,.6); animation: livePulse 2s infinite; }
 @keyframes livePulse { 0% { box-shadow: 0 0 0 0 rgba(61,220,132,.6); } 70% { box-shadow: 0 0 0 8px rgba(61,220,132,0); } 100% { box-shadow: 0 0 0 0 rgba(61,220,132,0); } }
+.standings__table.no-form .c-form { display: none; }
 .btn--sm { padding: .7rem 1.1rem; font-size: .92rem; }
 @media (max-width: 700px) {
   .standings__comp { text-align: left; }
@@ -441,13 +456,21 @@ a.sponsor:hover { transform: translateY(-4px); box-shadow: 0 16px 30px rgba(0,0,
 
 /* ---------- Pie ---------- */
 .footer { background: #042A16; color: rgba(255,255,255,.85); }
-.footer__grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 2rem; padding-block: 3rem; align-items: start; }
+.footer__grid { display: grid; grid-template-columns: 1.2fr 1.6fr .7fr; gap: 2rem; padding-block: 3rem; align-items: start; }
 .footer__brand { display: flex; gap: 1rem; align-items: center; }
 .footer__brand img { width: 48px; height: auto; }
 .footer__brand strong { display: block; font: 900 1.6rem/1 var(--display); color: var(--white); }
 .footer__brand span { font-size: .92rem; }
-.footer__sponsors span { font-size: .85rem; color: rgba(255,255,255,.6); }
-.footer__sponsors p { margin: .35rem 0 0; font-weight: 700; color: var(--white); }
+.footer__brand { align-items: flex-start; }
+.footer__address { display: inline-flex; align-items: flex-start; gap: .4rem; margin-top: .35rem; text-decoration: none; color: rgba(255,255,255,.85); line-height: 1.4; transition: color .2s ease; }
+.footer__address svg { flex: none; margin-top: .15rem; color: var(--yellow); }
+.footer__address:hover { color: var(--yellow); }
+.footer__address:hover span { text-decoration: underline; text-underline-offset: 3px; }
+.footer__support > span { display: block; font-size: .85rem; color: rgba(255,255,255,.6); margin-bottom: .6rem; }
+.footer__logos { display: flex; flex-wrap: wrap; gap: .75rem; }
+.footer__logo { display: flex; align-items: center; justify-content: center; flex: 1 1 140px; max-width: 180px; height: 100px; padding: .55rem .9rem; overflow: hidden; background: var(--white); border-radius: 12px; transition: transform .2s ease, box-shadow .2s ease; }
+.footer__logo:hover { transform: translateY(-3px); box-shadow: 0 10px 22px rgba(0,0,0,.3); }
+.footer__logo img { max-width: 100%; max-height: 86px; width: auto; height: auto; object-fit: contain; }
 .footer__nav { display: grid; gap: .35rem; justify-items: start; }
 .footer__nav a { text-decoration: none; }
 .footer__nav a:hover { color: var(--yellow); }

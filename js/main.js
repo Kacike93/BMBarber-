@@ -18,7 +18,7 @@ const EQUIPOS = {
     { foto: "images/equipos/equipo-09.webp", nombre: "Aleví A" },
     { foto: "images/equipos/equipo-11.webp", nombre: "Aleví B" },
     { foto: "images/equipos/equipo-10.webp", nombre: "Benjamí" },
-    { foto: "images/equipos/equipo-08.webp", nombre: "Escoleta" },
+    { foto: "images/equipos/equipo-08.webp", nombre: "Escola" },
   ],
 };
 
@@ -53,7 +53,9 @@ const PATROCINADORS = [
   { nom: "Goti Maquinaria", logo: "images/patrocinadors/goti-maquinaria.webp", web: "" },
   { nom: "Univertec", logo: "images/patrocinadors/univertec.webp", web: "" },
   { nom: "El Caliu", logo: "images/patrocinadors/el-caliu.webp", web: "" },
-  { nom: "Revalco", logo: "", web: "" },
+  { nom: "DPS Production", logo: "images/patrocinadors/dps-production.webp", web: "" },
+  { nom: "Sanilec", logo: "images/patrocinadors/sanilec.webp", web: "" },
+  { nom: "Dermo", logo: "images/patrocinadors/dermo.webp", web: "" },
 ];
 
 /* ==========================================================
@@ -165,6 +167,8 @@ tabs.forEach((tab, i) => {
     } else {
       updEl.textContent = CLASSIFICACIO.actualitzat;
     }
+    const table = body.closest("table");
+    table.classList.toggle("no-form", !data.equips.some(r => r.ratxa));
     data.equips.forEach((r, i) => {
       const dif = r.gf - r.gc;
       const tr = document.createElement("tr");
@@ -194,7 +198,7 @@ tabs.forEach((tab, i) => {
 // Formulari "Uneix-te"
 // Enganxa aquí la clau (Access Key) de Web3Forms que et va arribar per correu.
 // Mentre estigui buida, el formulari fa servir FormSubmit.
-const WEB3FORMS_KEY = "2f57159e-67eb-4c06-a60e-06cf45017ed0";
+const WEB3FORMS_KEY = "8e972b10-5ae1-4d83-b31d-f58f36d7c7be";
 (function () {
   const form = document.getElementById("form-unete");
   if (!form) return;
@@ -236,7 +240,7 @@ const WEB3FORMS_KEY = "2f57159e-67eb-4c06-a60e-06cf45017ed0";
     if (form.querySelector('input[name="_honey"]').value) return;
     const all = Object.fromEntries(new FormData(form).entries());
     const data = Object.fromEntries(Object.entries(all).filter(([k]) => !k.startsWith("_") && !["access_key", "subject", "redirect"].includes(k)));
-    btn.disabled = true; const label = btn.textContent; btn.textContent = "Enviant…";
+    btn.disabled = true; const label = btn.innerHTML; btn.textContent = "Enviant…";
     try {
       await (WEB3FORMS_KEY ? sendWeb3Forms(data) : sendFormSubmit(data));
       location.href = "/gracias.html";
@@ -244,7 +248,7 @@ const WEB3FORMS_KEY = "2f57159e-67eb-4c06-a60e-06cf45017ed0";
       const body = encodeURIComponent(Object.entries(data).map(([k, v]) => `${k}: ${v}`).join("\n"));
       show(`No s'ha pogut enviar ara mateix${err && err.message ? ` <small>(${esc(err.message)})</small>` : ""}. Torna-ho a provar en uns minuts o <a href="mailto:${EMAIL}?subject=${encodeURIComponent("Sol·licitud des de la web")}&body=${body}">envia'ns un correu directament</a>.`, "error");
     } finally {
-      btn.disabled = false; btn.textContent = label;
+      btn.disabled = false; btn.innerHTML = label;
     }
   });
 })();
@@ -270,8 +274,6 @@ const WEB3FORMS_KEY = "2f57159e-67eb-4c06-a60e-06cf45017ed0";
   set.forEach(p => track.appendChild(tile(p, true)));
   track.style.setProperty("--dur", `${set.length * 3.5}s`);
 
-  const foot = document.getElementById("footer-sponsors");
-  if (foot) foot.innerHTML = PATROCINADORS.map(p => p.nom).join("<br>");
 
   const cta = document.getElementById("sponsor-cta");
   if (cta) cta.addEventListener("click", () => {
