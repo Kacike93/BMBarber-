@@ -245,7 +245,21 @@ GALERIA.forEach((g, i) => {
 
   const cta = document.getElementById("sponsor-cta");
   if (cta) cta.addEventListener("click", () => {
-    const sel = document.querySelector('select[name="interes"]');
+    const sel = document.querySelector('#form-unete select');
     if (sel) sel.value = "Patrocinar";
   });
+})();
+
+// Valors: apareixen un darrere l'altre en arribar-hi
+(function () {
+  const cards = document.querySelectorAll(".value");
+  if (!cards.length || !("IntersectionObserver" in window)) return;
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  cards.forEach((c, i) => { c.classList.add("is-hidden"); c.style.transitionDelay = `${i * 90}ms`; });
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.remove("is-hidden"); io.unobserve(e.target); }
+    });
+  }, { threshold: 0.2 });
+  cards.forEach(c => io.observe(c));
 })();
