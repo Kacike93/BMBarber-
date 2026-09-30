@@ -17,7 +17,21 @@
   const tabsEl = $("res-tabs");
   const EQUIPS_RESERVA = [{ id: "senior-a", nom: "Sènior A" }, { id: "senior-b", nom: "Sènior B" }];
   const esc = (t) => String(t ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-  const logo = (src, cls) => src ? `<img class="${cls}" src="${esc(src)}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">` : `<span class="${cls}" aria-hidden="true"></span>`;
+  const SKIP = /^(BM|CH|CEH|AB|HANDBOL|CLUB|DE|DEL|LA|EL|I|B\.|M\.|SE|MGC|UE)$/i;
+  const initials = (name) => (String(name || "").replace(/['"()]/g, " ").split(/\s+/).filter((w) => w && !SKIP.test(w)).slice(0, 2).map((w) => w[0]).join("") || "·").toUpperCase();
+  // Escuts: 1) directe de la federació sense "referer", 2) a través del nostre Worker, 3) inicials
+  window.__logoFail = (img) => {
+    const step = +(img.dataset.step || 0);
+    if (step === 0 && img.dataset.direct) { img.dataset.step = 1; img.src = "/api/logo?u=" + encodeURIComponent(img.dataset.direct); return; }
+    img.outerHTML = img.dataset.fb;
+  };
+  const logo = (src, cls, name) => {
+    const ini = `<span class="${cls} logo-ini" aria-hidden="true">${esc(initials(name))}</span>`;
+    if (/barber/i.test(name || "")) return `<img class="${cls}" src="/images/escudo.png" alt="" loading="lazy">`;
+    if (!src) return ini;
+    const direct = src.startsWith("/api/logo") ? "" : src;
+    return `<img class="${cls}" src="${esc(src)}" alt="" loading="lazy" referrerpolicy="no-referrer" data-direct="${esc(direct)}" onerror="__logoFail(this)" data-fb='${ini.replace(/'/g, "&#39;")}'>`;
+  };
   const dt = (iso) => (iso ? new Date(iso.length > 10 ? iso : iso + "T12:00") : null);
   const hasTime = (iso) => !!iso && iso.length > 10;
 
@@ -48,9 +62,9 @@
     return `<article class="mcard ${type === "last" ? "mcard--last" : ""}">
       <p class="mcard__label">${title}</p>
       <div class="mcard__teams">
-        <div class="mcard__team ${m.barberaLocal ? "is-us" : ""}">${logo(m.logoLocal, "mcard__logo")}<span>${esc(m.local)}</span></div>
+        <div class="mcard__team ${m.barberaLocal ? "is-us" : ""}">${logo(m.logoLocal, "mcard__logo", m.local)}<span>${esc(m.local)}</span></div>
         <div class="mcard__mid">${mid}</div>
-        <div class="mcard__team ${m.barberaVisitant ? "is-us" : ""}">${logo(m.logoVisitant, "mcard__logo")}<span>${esc(m.visitant)}</span></div>
+        <div class="mcard__team ${m.barberaVisitant ? "is-us" : ""}">${logo(m.logoVisitant, "mcard__logo", m.visitant)}<span>${esc(m.visitant)}</span></div>
       </div>
       <p class="mcard__when">${esc(when.charAt(0).toUpperCase() + when.slice(1))}</p>
       ${m.lloc ? `<p class="mcard__where">${esc(m.lloc)}</p>` : ""}
@@ -66,7 +80,7 @@
     const side = m.estat === "en-joc" ? `<span class="chip chip--live">En joc</span>`
       : res ? `<span class="mcard__badge badge--${res}" title="${LABEL[res]}">${{ g: "V", e: "E", p: "D" }[res]}</span>`
       : m.estat === "ajornat" ? `<span class="chip">Ajornat</span>` : `<span class="chip">Pendent</span>`;
-    const row = (name, lg, gols, us) => `<div class="match__row ${us ? "is-us" : ""}">${logo(lg, "team-logo")}<span>${esc(name)}</span>${gols != null ? `<b>${gols}</b>` : ""}</div>`;
+    const row = (name, lg, gols, us) => `<div class="match__row ${us ? "is-us" : ""}">${logo(lg, "team-logo", name)}<span>${esc(name)}</span>${gols != null ? `<b>${gols}</b>` : ""}</div>`;
     return `<li class="match ${isNext ? "is-next" : ""}">
       <div class="match__date">${date}</div>
       <div class="match__teams">
@@ -98,7 +112,7 @@
       const dif = r.gf - r.gc;
       return `<tr class="${r.nosaltres ? "is-us" : ""}">
         <td class="c-pos">${r.pos}</td>
-        <th scope="row" class="c-team"><span class="team-name">${logo(r.logo, "team-logo")}${esc(r.equip)}</span></th>
+        <th scope="row" class="c-team"><span class="team-name">${logo(r.logo, "team-logo", r.equip)}${esc(r.equip)}</span></th>
         <td class="c-pt">${r.pt}</td><td>${r.pj}</td><td>${r.pg}</td><td class="c-hide">${r.pe}</td><td>${r.pp}</td>
         <td class="c-hide">${r.gf}</td><td class="c-hide">${r.gc}</td>
         <td class="${dif > 0 ? "pos" : dif < 0 ? "neg" : ""}">${dif > 0 ? "+" : ""}${dif}</td></tr>`;

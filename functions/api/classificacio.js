@@ -7,6 +7,7 @@
 const URL_CLASSIFICACIO =
   "https://resultadosbalonmano.isquad.es/clasificacion.php?seleccion=0&id=1038541&id_ambito=0&id_territorial=17&id_superficie=1&iframe=0&id_categoria=3077&id_competicion=211864";
 
+const NAMED = { aacute: "á", eacute: "é", iacute: "í", oacute: "ó", uacute: "ú", Aacute: "Á", Eacute: "É", Iacute: "Í", Oacute: "Ó", Uacute: "Ú", agrave: "à", egrave: "è", ograve: "ò", Agrave: "À", Egrave: "È", Ograve: "Ò", ccedil: "ç", Ccedil: "Ç", ntilde: "ñ", Ntilde: "Ñ", uuml: "ü", Uuml: "Ü", iuml: "ï", Iuml: "Ï", middot: "·", ordf: "ª", ordm: "º" };
 export const decode = (s) =>
   s
     .replace(/&nbsp;/g, " ")
@@ -15,7 +16,9 @@ export const decode = (s) =>
     .replace(/&#0?39;|&apos;/g, "'")
     .replace(/&lt;/g, "<")
     .replace(/&gt;/g, ">")
-    .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(+n));
+    .replace(/&#x([0-9a-f]+);/gi, (_, h) => String.fromCharCode(parseInt(h, 16)))
+    .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(+n))
+    .replace(/&([a-z]+);/gi, (m, n) => NAMED[n] ?? m);
 
 export const text = (html) => decode(html.replace(/<[^>]*>/g, " ")).replace(/\s+/g, " ").trim();
 export const firstInt = (s) => {

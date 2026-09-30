@@ -27,7 +27,22 @@ const isBarbera = (s) => /BARBER/i.test(s);
 const tables = (html) => html.match(/<table[\s\S]*?<\/table>/gi) || [];
 const rowsOf = (t) => t.match(/<tr[\s\S]*?<\/tr>/gi) || [];
 const cellsOf = (r) => r.match(/<t[hd][^>]*>[\s\S]*?<\/t[hd]>/gi) || [];
-const imgsOf = (h) => [...h.matchAll(/<img[^>]+src="([^"]+)"/gi)].map((m) => m[1]);
+const LOGO_HOSTS = ["balonmano.isquad.es", "balonmano.misquad.es", "resultadosbalonmano.isquad.es"];
+let BASE = "https://resultadosbalonmano.isquad.es/";
+function logoUrl(raw) {
+  if (!raw || /^data:/i.test(raw) || /(blank|loading|spacer|pixel)\./i.test(raw)) return "";
+  try {
+    const abs = new URL(raw.replace(/&amp;/g, "&"), BASE);
+    if (!LOGO_HOSTS.includes(abs.hostname)) return "";
+    abs.protocol = "https:";
+    return abs.toString();
+  } catch (_) { return ""; }
+}
+const imgsOf = (h) => [...h.matchAll(/<img\b[^>]*>/gi)].map((m) => {
+  const tag = m[0];
+  const attr = (n) => (tag.match(new RegExp(n + "\\s*=\\s*[\"']([^\"']+)[\"']", "i")) || [])[1];
+  return logoUrl(attr("data-src") || attr("data-original") || attr("data-lazy-src") || attr("src"));
+}).filter(Boolean);
 const anchorTexts = (h) => [...h.matchAll(/<a[^>]*>([\s\S]*?)<\/a>/gi)].map((m) => clean(m[1])).filter((t) => t && !/^equipo\.php/i.test(t) && t !== "VS");
 
 function parseClassificacio(html) {
@@ -95,9 +110,16 @@ function parsePartits(html) {
   return out;
 }
 
-export function parseEquip(html) {
-  const h = html.match(/CLASIFICACI[ÓO]N\s*-\s*([^<]+)</i);
-  const competicio = h ? fixText(text(h[1])) : null;
+export function parseEquip(html, base) {
+  if (base) BASE = base;
+  const plain = fixText(text(html));
+  let competicio = null;
+  const m1 = plain.match(/CLASIFICACI[ÓO]N\s*-\s*(.{5,140}?\bGrup\s+[A-Z0-9]+)/i) || plain.match(/CLASIFICACI[ÓO]N\s*-\s*(.{5,120}?)\s+Posici[óo]n/i);
+  if (m1) competicio = m1[1].trim();
+  if (!competicio) {
+    const m2 = plain.match(/((?:LLIGA|PRIMERA|SEGONA|TERCERA|COPA|LIGA|DIVISI)[A-ZÀ-Ü\s'·.-]+?-\s*[^-]+?-\s*Grup\s+\w+)/);
+    if (m2) competicio = m2[1].trim();
+  }
   return { competicio, classificacio: parseClassificacio(html), partits: parsePartits(html) };
 }
 
@@ -120,18 +142,39 @@ export async function onRequestGet(context) {
   if (!eq) return json({ error: "Equip desconegut" }, 404, 0);
 
   const cache = caches.default;
-  const cacheKey = new Request(`${url.origin}/api/equip?id=${eq.id}`);
+  const cacheKey = new Request(`${url.origin}/api/equip?id=${eq.id}&v=3`);
   try { const hit = await cache.match(cacheKey); if (hit) return hit; } catch (_) {}
 
   try {
     const res = await fetch(eq.url, { headers: { "User-Agent": "Mozilla/5.0 (compatible; BMBarberaWeb/1.0)", "Accept-Language": "es,ca;q=0.9" } });
     if (!res.ok) throw new Error(`La federació ha respost ${res.status}`);
-    const data = parseEquip(await res.text());
+    const data = parseEquip(await res.text(), eq.url);
     if (!data.classificacio.length && !data.partits.length) throw new Error("No s'han trobat dades a la pàgina");
     const out = json({ id: eq.id, nom: eq.nom, font: eq.url, actualitzat: new Date().toISOString(), ...data });
     try { context.waitUntil(cache.put(cacheKey, out.clone())); } catch (_) {}
     return out;
   } catch (err) {
     return json({ error: String(err.message || err), font: eq.url }, 502, 0);
+  }
+}
+
+// /api/logo?u=...  -> escut d'un equip servit des de la nostra web (la federació no deixa enllaçar-los directament)
+export async function onRequestLogo(context) {
+  const url = new URL(context.request.url);
+  let target;
+  try { target = new URL(url.searchParams.get("u") || ""); } catch (_) { return new Response("Bad request", { status: 400 }); }
+  if (!LOGO_HOSTS.includes(target.hostname)) return new Response("Forbidden", { status: 403 });
+  const cache = caches.default;
+  const cacheKey = new Request(url.toString());
+  try { const hit = await cache.match(cacheKey); if (hit) return hit; } catch (_) {}
+  try {
+    const res = await fetch(target.toString(), { headers: { "User-Agent": "Mozilla/5.0 (compatible; BMBarberaWeb/1.0)", Referer: "https://resultadosbalonmano.isquad.es/", Accept: "image/*" } });
+    const type = res.headers.get("Content-Type") || "";
+    if (!res.ok || !type.startsWith("image/")) throw new Error("no image");
+    const out = new Response(res.body, { headers: { "Content-Type": type, "Cache-Control": "public, max-age=604800, s-maxage=604800" } });
+    try { context.waitUntil(cache.put(cacheKey, out.clone())); } catch (_) {}
+    return out;
+  } catch (_) {
+    return new Response(null, { status: 404, headers: { "Cache-Control": "public, max-age=3600" } });
   }
 }
