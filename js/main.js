@@ -363,3 +363,16 @@ const WEB3FORMS_KEY = "8e972b10-5ae1-4d83-b31d-f58f36d7c7be";
   }, { threshold: 0.2 });
   io.observe(box);
 })();
+
+// Eslògan: separa cada paraula en lletres perquè puguin saltar en passar el ratolí
+(function () {
+  document.querySelectorAll(".slogan__w").forEach(w => {
+    const text = w.textContent.trim();
+    w.textContent = "";
+    [...text].forEach((c, i) => {
+      const s = document.createElement("span");
+      s.className = "ch"; s.style.setProperty("--i", i); s.textContent = c;
+      w.appendChild(s);
+    });
+  });
+})();

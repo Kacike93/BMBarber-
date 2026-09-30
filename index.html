@@ -64,8 +64,8 @@
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;0,800;0,900;1,800;1,900&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=20260930n">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;0,800;0,900;1,500;1,800;1,900&family=Barlow:wght@400;500;600;700&family=Permanent+Marker&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css?v=20261002b">
 </head>
 <body>
 
@@ -83,7 +83,7 @@
     <nav id="nav" class="nav">
       <a href="#club">El club</a>
       <a href="#valores">Valors</a>
-      <a href="#classificacio">Classificació</a>
+      <a href="/resultats">Resultats</a>
       <a href="#equipos">Equips</a>
       <a href="#instagram">Instagram</a>
       <a href="https://bmbarbera.playoffinformatica.com/Botiga.php" class="nav__shop" target="_blank" rel="noopener">Botiga <span aria-hidden="true">↗</span></a>
@@ -100,8 +100,15 @@
     <div class="hero__inner">
       <img class="hero__crest" src="images/escudo.png" alt="Escut del BM Barberà" width="129" height="182">
       <h1><span>Handbol</span> <span>Barberà</span></h1>
-      <p class="hero__slogan">Esforç, passió i compromís per l'handbol</p>
-      <p class="hero__lead">El club d'handbol de Barberà del Vallès. Quaranta anys a la pista, de l'escola a la Lliga Or.</p>
+      <p class="hero__slogan" aria-label="Esforç, passió i compromís per l'handbol">
+        <span class="slogan__words" aria-hidden="true">
+          <span class="slogan__w slogan__w--1">Esforç</span>
+          <span class="slogan__w slogan__w--2">Passió</span>
+          <span class="slogan__w slogan__w--3">Compromís</span>
+        </span>
+        <span class="slogan__tail" aria-hidden="true">per l'handbol</span>
+      </p>
+      <p class="hero__lead">Més de <strong>quaranta anys</strong> d’handbol, família i equip a <strong>Barberà del Vallès</strong>.</p>
       <div class="hero__actions">
         <a class="btn btn--yellow" href="#unete">Vull jugar</a>
         <a class="btn btn--ghost" href="#equipos">Veure els equips</a>
@@ -116,14 +123,14 @@
     <div class="wrap club__grid">
       <div class="club__copy">
         <div class="club__title">
-          <h2>Quaranta anys fent club</h2>
+          <h2>Més de quaranta anys fent club</h2>
           <img class="club__crest" src="images/escut-historic.png" alt="El primer escut del BM Barberà" title="El primer escut del club" width="240" height="290">
         </div>
         <p>Des de l’escola fins al sènior de Lliga Or, al BM Barberà hi ha un lloc per a tothom. Per als nens i nenes que agafen una pilota per primera vegada, per als equips de base que creixen, aprenen i comparteixen temporada rere temporada, i per als jugadors i jugadores que porten amb orgull el nom de Barberà a cada pista.</p>
         <p>Però el BM Barberà és molt més que el que passa dins del terreny de joc. Darrere de cada entrenament, de cada partit i de cada victòria hi ha entrenadors, famílies, voluntaris i una afició que empeny sempre des de la grada.</p>
         <p class="club__closing">Perquè el BM Barberà és esport, però sobretot és gent.</p>
         <dl class="facts">
-          <div><span class="facts__icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg></span><dt>40</dt><dd>anys d'història</dd></div>
+          <div><span class="facts__icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg></span><dt>+40</dt><dd>anys d'història</dd></div>
           <div><span class="facts__icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"/></svg></span><dt>13</dt><dd>equips aquesta temporada</dd></div>
           <div><span class="facts__icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><dt>+150</dt><dd>jugadors i jugadores</dd></div>
           <div><span class="facts__icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg></span><dt>+20</dt><dd>tècnics</dd></div>
@@ -243,6 +250,7 @@
           </table>
         </div>
         <div class="standings__foot">
+          <a class="btn btn--yellow btn--sm" href="/resultats">Tots els resultats →</a>
           <a class="btn btn--ghost btn--sm" href="https://resultadosbalonmano.isquad.es/clasificacion.php?seleccion=0&amp;id=1038541&amp;id_ambito=0&amp;id_territorial=17&amp;id_superficie=1&amp;iframe=0&amp;id_categoria=3077&amp;id_competicion=211864" target="_blank" rel="noopener">Classificació en directe ↗</a>
         </div>
       </div>
@@ -390,7 +398,7 @@
     </div>
     <nav class="footer__nav" aria-label="Peu de pàgina">
       <a href="#club">El club</a>
-      <a href="#classificacio">Classificació</a>
+      <a href="/resultats">Resultats</a>
       <a href="#equipos">Equips</a>
       <a href="#instagram">Instagram</a>
       <a href="#patrocinadors">Patrocinadors</a>
@@ -412,6 +420,6 @@
   <button class="lightbox__nav lightbox__next" aria-label="Foto següent">›</button>
 </dialog>
 
-<script src="js/main.js?v=20260930m"></script>
+<script src="js/main.js?v=20261001c"></script>
 </body>
 </html>

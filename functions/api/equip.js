@@ -1,0 +1,137 @@
+// /api/equips            -> llista d'equips disponibles a la pàgina de resultats
+// /api/equip?id=senior-a -> classificació i partits d'un equip (dades de la federació)
+//
+// PER AFEGIR UN EQUIP: copia una línia d'EQUIPS i enganxa l'enllaç de la seva
+// pàgina a resultadosbalonmano.isquad.es (la pàgina "equipo.php" de l'equip).
+import { text, firstInt, niceName } from "./classificacio.js";
+
+export const EQUIPS = [
+  { id: "senior-a", nom: "Sènior A", url: "https://resultadosbalonmano.isquad.es/equipo.php?id_equipo=201858&id=1038541&id_superficie=1" },
+  { id: "senior-b", nom: "Sènior B", url: "https://resultadosbalonmano.isquad.es/equipo.php?seleccion=0&id_equipo=201861&id=1038564&id_superficie=1" },
+];
+
+const CACHE_SEGONS = 1800; // 30 minuts
+
+// Arregla textos mal codificats de la federació (p. ex. "PAVELLÃ“" -> "PAVELLÓ")
+const CP1252 = { "€": 0x80, "‚": 0x82, "ƒ": 0x83, "„": 0x84, "…": 0x85, "†": 0x86, "‡": 0x87, "ˆ": 0x88, "‰": 0x89, "Š": 0x8a, "‹": 0x8b, "Œ": 0x8c, "Ž": 0x8e, "‘": 0x91, "’": 0x92, "“": 0x93, "”": 0x94, "•": 0x95, "–": 0x96, "—": 0x97, "˜": 0x98, "™": 0x99, "š": 0x9a, "›": 0x9b, "œ": 0x9c, "ž": 0x9e, "Ÿ": 0x9f };
+function fixText(s) {
+  if (!/[ÃÂ]/.test(s)) return s;
+  try {
+    const bytes = Uint8Array.from([...s].map((c) => CP1252[c] ?? (c.charCodeAt(0) < 256 ? c.charCodeAt(0) : 0x3f)));
+    return new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+  } catch (_) { return s; }
+}
+const clean = (html) => fixText(text(html));
+const isBarbera = (s) => /BARBER/i.test(s);
+
+const tables = (html) => html.match(/<table[\s\S]*?<\/table>/gi) || [];
+const rowsOf = (t) => t.match(/<tr[\s\S]*?<\/tr>/gi) || [];
+const cellsOf = (r) => r.match(/<t[hd][^>]*>[\s\S]*?<\/t[hd]>/gi) || [];
+const imgsOf = (h) => [...h.matchAll(/<img[^>]+src="([^"]+)"/gi)].map((m) => m[1]);
+const anchorTexts = (h) => [...h.matchAll(/<a[^>]*>([\s\S]*?)<\/a>/gi)].map((m) => clean(m[1])).filter((t) => t && !/^equipo\.php/i.test(t) && t !== "VS");
+
+function parseClassificacio(html) {
+  const t = tables(html).find((x) => { const s = text(x).toUpperCase(); return /\b(PUNTOS|PT)\b/.test(s) && /\bGF\b/.test(s) && /\bGC\b/.test(s); });
+  if (!t) return [];
+  const rows = rowsOf(t);
+  const head = rows.find((r) => /\b(PUNTOS|PT)\b/i.test(text(r)));
+  const H = cellsOf(head || "").map((c) => text(c).toUpperCase());
+  const idx = (...names) => H.findIndex((h) => names.includes(h));
+  const C = { pt: idx("PUNTOS", "PT"), pj: idx("JUG", "PJ"), pg: idx("GAN", "PG"), pe: idx("EMP", "PE"), pp: idx("PER", "PP"), gf: idx("GF"), gc: idx("GC") };
+  const out = [];
+  for (const r of rows) {
+    if (r === head) continue;
+    const cells = cellsOf(r);
+    if (cells.length < 8) continue;
+    const t2 = cells.map(clean);
+    // Nom: primera cel·la amb text que no sigui un número ni un enllaç
+    let nom = "";
+    for (let i = 1; i < cells.length; i++) {
+      const cand = anchorTexts(cells[i])[0] || t2[i];
+      if (cand && !/^-?\d+$/.test(cand) && !/^equipo\.php/i.test(cand)) { nom = cand; break; }
+    }
+    if (!nom) continue;
+    const pick = (k, fb) => firstInt(t2[C[k] >= 0 ? C[k] : fb]);
+    out.push({
+      pos: firstInt(t2[0]) || out.length + 1,
+      equip: niceName(nom), logo: imgsOf(r)[0] || "",
+      pt: pick("pt", 3), pj: pick("pj", 4), pg: pick("pg", 5), pe: pick("pe", 6), pp: pick("pp", 7), gf: pick("gf", 8), gc: pick("gc", 9),
+      nosaltres: isBarbera(nom),
+    });
+  }
+  return out;
+}
+
+function parsePartits(html) {
+  const t = tables(html).find((x) => { const s = text(x).toUpperCase(); return s.includes("MARCADOR") && s.includes("FECHA"); });
+  if (!t) return [];
+  const rows = rowsOf(t);
+  const head = rows.find((r) => /MARCADOR/i.test(text(r)));
+  const H = cellsOf(head || "").map((c) => text(c).toUpperCase());
+  const col = (name, fb) => { const i = H.findIndex((h) => h.startsWith(name)); return i >= 0 ? i : fb; };
+  const C = { eq: col("EQUIPO", 0), mar: col("MARCADOR", 1), data: col("FECHA", 2), lloc: col("LUGAR", 3), estat: col("ESTADO", 4) };
+  const out = [];
+  for (const r of rows) {
+    if (r === head) continue;
+    const cells = cellsOf(r);
+    if (cells.length < 5) continue;
+    const noms = anchorTexts(cells[C.eq]);
+    if (noms.length < 2) continue;
+    const logos = imgsOf(cells[C.eq]);
+    const marc = clean(cells[C.mar]).match(/(\d+)\s*-\s*(\d+)/);
+    const dm = clean(cells[C.data]).match(/(\d{2})\/(\d{2})\/(\d{4})(?:\s+(\d{1,2}):(\d{2}))?/);
+    const estatRaw = clean(cells[C.estat]).toLowerCase();
+    const estat = /final/.test(estatRaw) ? "finalitzat" : /juego|directo|curso/.test(estatRaw) ? "en-joc" : /aplaz|suspend/.test(estatRaw) ? "ajornat" : "pendent";
+    out.push({
+      local: niceName(noms[0]), visitant: niceName(noms[1]),
+      logoLocal: logos[0] || "", logoVisitant: logos[1] || "",
+      golsLocal: marc ? +marc[1] : null, golsVisitant: marc ? +marc[2] : null,
+      data: dm ? `${dm[3]}-${dm[2]}-${dm[1]}` + (dm[4] ? `T${dm[4].padStart(2, "0")}:${dm[5]}` : "") : null,
+      lloc: niceName(clean(cells[C.lloc]).replace(/\s+\(.*?\)\s*$/, "") || ""),
+      estat,
+      barberaLocal: isBarbera(noms[0]), barberaVisitant: isBarbera(noms[1]),
+    });
+  }
+  return out;
+}
+
+export function parseEquip(html) {
+  const h = html.match(/CLASIFICACI[ÓO]N\s*-\s*([^<]+)</i);
+  const competicio = h ? fixText(text(h[1])) : null;
+  return { competicio, classificacio: parseClassificacio(html), partits: parsePartits(html) };
+}
+
+const json = (obj, status = 200, maxAge = CACHE_SEGONS) =>
+  new Response(JSON.stringify(obj), {
+    status,
+    headers: {
+      "Content-Type": "application/json; charset=utf-8",
+      "Cache-Control": maxAge ? `public, max-age=300, s-maxage=${maxAge}` : "no-store",
+    },
+  });
+
+export async function onRequestList() {
+  return json({ equips: EQUIPS.map(({ id, nom, url }) => ({ id, nom, font: url })) }, 200, 3600);
+}
+
+export async function onRequestGet(context) {
+  const url = new URL(context.request.url);
+  const eq = EQUIPS.find((e) => e.id === url.searchParams.get("id"));
+  if (!eq) return json({ error: "Equip desconegut" }, 404, 0);
+
+  const cache = caches.default;
+  const cacheKey = new Request(`${url.origin}/api/equip?id=${eq.id}`);
+  try { const hit = await cache.match(cacheKey); if (hit) return hit; } catch (_) {}
+
+  try {
+    const res = await fetch(eq.url, { headers: { "User-Agent": "Mozilla/5.0 (compatible; BMBarberaWeb/1.0)", "Accept-Language": "es,ca;q=0.9" } });
+    if (!res.ok) throw new Error(`La federació ha respost ${res.status}`);
+    const data = parseEquip(await res.text());
+    if (!data.classificacio.length && !data.partits.length) throw new Error("No s'han trobat dades a la pàgina");
+    const out = json({ id: eq.id, nom: eq.nom, font: eq.url, actualitzat: new Date().toISOString(), ...data });
+    try { context.waitUntil(cache.put(cacheKey, out.clone())); } catch (_) {}
+    return out;
+  } catch (err) {
+    return json({ error: String(err.message || err), font: eq.url }, 502, 0);
+  }
+}

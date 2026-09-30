@@ -1,6 +1,7 @@
 // Worker de Cloudflare: serveix la web i les dades en directe.
 import { onRequestGet as classificacio } from "../functions/api/classificacio.js";
 import { onRequestGet as instagram } from "../functions/api/instagram.js";
+import { onRequestGet as equip, onRequestList as equips } from "../functions/api/equip.js";
 
 export default {
   async fetch(request, env, ctx) {
@@ -8,6 +9,8 @@ export default {
     const context = { request, env, waitUntil: (p) => ctx.waitUntil(p) };
     if (url.pathname === "/api/classificacio") return classificacio(context);
     if (url.pathname === "/api/instagram") return instagram(context);
+    if (url.pathname === "/api/equips") return equips(context);
+    if (url.pathname === "/api/equip") return equip(context);
     return env.ASSETS.fetch(request);
   },
 };

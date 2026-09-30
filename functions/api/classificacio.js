@@ -7,7 +7,7 @@
 const URL_CLASSIFICACIO =
   "https://resultadosbalonmano.isquad.es/clasificacion.php?seleccion=0&id=1038541&id_ambito=0&id_territorial=17&id_superficie=1&iframe=0&id_categoria=3077&id_competicion=211864";
 
-const decode = (s) =>
+export const decode = (s) =>
   s
     .replace(/&nbsp;/g, " ")
     .replace(/&amp;/g, "&")
@@ -17,16 +17,16 @@ const decode = (s) =>
     .replace(/&gt;/g, ">")
     .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(+n));
 
-const text = (html) => decode(html.replace(/<[^>]*>/g, " ")).replace(/\s+/g, " ").trim();
-const firstInt = (s) => {
+export const text = (html) => decode(html.replace(/<[^>]*>/g, " ")).replace(/\s+/g, " ").trim();
+export const firstInt = (s) => {
   const m = String(s).match(/-?\d+/);
   return m ? parseInt(m[0], 10) : 0;
 };
 
 // "MUBAK BM LA ROCA" -> "Mubak BM La Roca"
-const KEEP = new Set(["BM", "CH", "AB", "SMA", "CE", "CB", "UE", "HC", "SE", "FC", "CD", "AE", "CN", "SD", "II", "III"]);
-const LOWER = new Set(["DE", "DEL", "LA", "LES", "ELS", "I", "Y", "D'"]);
-function niceName(raw) {
+const KEEP = new Set(["BM", "CH", "AB", "SMA", "SMC", "CE", "CB", "UE", "HC", "SE", "FC", "CD", "AE", "CN", "SD", "II", "III", "IEM", "CEM", "PEM", "ZEM", "CEH", "MGC", "PAV", "EUE"]);
+const LOWER = new Set(["DE", "DEL", "I", "Y", "D'"]);
+export function niceName(raw) {
   return raw
     .split(" ")
     .map((w, i) => {
