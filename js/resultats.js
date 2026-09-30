@@ -19,7 +19,10 @@ const MOSTRAR_ESCUTS = false;
   const $ = (id) => document.getElementById(id);
   if (!MOSTRAR_ESCUTS) document.body.classList.add('no-logos');
   const tabsEl = $("res-tabs");
-  const EQUIPS_RESERVA = [{ id: "senior-a", nom: "Sènior A" }, { id: "senior-b", nom: "Sènior B" }, { id: "juvenil-masculi", nom: "Juvenil masculí" }, { id: "juvenil-femeni", nom: "Juvenil femení" }, { id: "cadet-masculi", nom: "Cadet masculí" }, { id: "cadet-femeni", nom: "Cadet femení" }];
+  const EQUIPS_RESERVA = [
+    { id: "senior-a", grup: "masculi", curt: "Sènior A", nom: "Sènior A masculí" }, { id: "senior-b", grup: "masculi", curt: "Sènior B", nom: "Sènior B masculí" },
+    { id: "juvenil-masculi", grup: "masculi", curt: "Juvenil", nom: "Juvenil masculí" }, { id: "cadet-masculi", grup: "masculi", curt: "Cadet", nom: "Cadet masculí" },
+    { id: "juvenil-femeni", grup: "femeni", curt: "Juvenil", nom: "Juvenil femení" }, { id: "cadet-femeni", grup: "femeni", curt: "Cadet", nom: "Cadet femení" }];
   const esc = (t) => String(t ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const SKIP = /^(BM|CH|CEH|AB|HANDBOL|CLUB|DE|DEL|LA|EL|I|B\.|M\.|SE|MGC|UE)$/i;
   const initials = (name) => (String(name || "").replace(/['"()]/g, " ").split(/\s+/).filter((w) => w && !SKIP.test(w)).slice(0, 2).map((w) => w[0]).join("") || "·").toUpperCase();
@@ -54,6 +57,12 @@ const MOSTRAR_ESCUTS = false;
     return us > them ? "g" : us < them ? "p" : "e";
   }
   const LABEL = { g: "Victòria", e: "Empat", p: "Derrota" };
+  const CREST = '<img class="mcard__crest" src="/images/escudo.png" alt="" width="300" height="419">';
+  // Pavelló: icona de casa si juguem a l'IEM Elisa Badia, icona d'autobús si és fora
+  const isHome = (lloc) => /elisa\s*badia/i.test(lloc || "");
+  const ICON_HOME = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5"/></svg>';
+  const ICON_AWAY = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 16V8a2 2 0 0 1 2-2h11.5a2 2 0 0 1 1.7.95L21 11.5V16a1 1 0 0 1-1 1h-1"/><path d="M5 17H3"/><path d="M15 17H9"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/><path d="M3 11h18"/><path d="M8 6v5M13 6v5"/></svg>';
+  const venue = (lloc) => lloc ? `<span class="venue ${isHome(lloc) ? "venue--home" : "venue--away"}" title="${isHome(lloc) ? "A casa" : "Fora de casa"}"><span class="venue__ico" aria-hidden="true">${isHome(lloc) ? ICON_HOME : ICON_AWAY}</span>${esc(lloc)}</span>` : "";
 
   function card(m, type) {
     const title = type === "next" ? "Proper partit" : "Últim resultat";
@@ -67,12 +76,12 @@ const MOSTRAR_ESCUTS = false;
     return `<article class="mcard ${type === "last" ? "mcard--last" : ""}">
       <p class="mcard__label">${title}</p>
       <div class="mcard__teams">
-        <div class="mcard__team ${m.barberaLocal ? "is-us" : ""}">${logo(m.logoLocal, "mcard__logo", m.local)}<span>${esc(m.local)}</span></div>
+        <div class="mcard__team ${m.barberaLocal ? "is-us" : ""}">${m.barberaLocal && !MOSTRAR_ESCUTS ? CREST : logo(m.logoLocal, "mcard__logo", m.local)}<span>${esc(m.local)}</span></div>
         <div class="mcard__mid">${mid}</div>
-        <div class="mcard__team ${m.barberaVisitant ? "is-us" : ""}">${logo(m.logoVisitant, "mcard__logo", m.visitant)}<span>${esc(m.visitant)}</span></div>
+        <div class="mcard__team ${m.barberaVisitant ? "is-us" : ""}">${m.barberaVisitant && !MOSTRAR_ESCUTS ? CREST : logo(m.logoVisitant, "mcard__logo", m.visitant)}<span>${esc(m.visitant)}</span></div>
       </div>
       <p class="mcard__when">${esc(when.charAt(0).toUpperCase() + when.slice(1))}</p>
-      ${m.lloc ? `<p class="mcard__where">${esc(m.lloc)}</p>` : ""}
+      ${m.lloc ? `<p class="mcard__where">${venue(m.lloc)}</p>` : ""}
     </article>`;
   }
 
@@ -91,7 +100,7 @@ const MOSTRAR_ESCUTS = false;
       <div class="match__teams">
         ${row(m.local, m.logoLocal, m.golsLocal, m.barberaLocal)}
         ${row(m.visitant, m.logoVisitant, m.golsVisitant, m.barberaVisitant)}
-        ${m.lloc ? `<div class="match__where">${esc(m.lloc)}</div>` : ""}
+        ${m.lloc ? `<div class="match__where">${venue(m.lloc)}</div>` : ""}
       </div>
       <div class="match__side">${side}</div>
     </li>`;
@@ -133,7 +142,7 @@ const MOSTRAR_ESCUTS = false;
   }
 
   async function load(eq) {
-    [...tabsEl.children].forEach((b) => { const on = b.dataset.id === eq.id; b.setAttribute("aria-selected", String(on)); b.tabIndex = on ? 0 : -1; });
+    showGroup(eq.grup || "masculi", eq.id);
     if (location.hash !== "#" + eq.id) history.replaceState(null, "", "#" + eq.id);
     $("res-team").textContent = eq.nom; $("res-comp").textContent = ""; $("res-updated").textContent = "";
     loading();
@@ -147,12 +156,23 @@ const MOSTRAR_ESCUTS = false;
     }
   }
 
+  let EQUIPS = EQUIPS_RESERVA;
+  const groupsEl = $("res-groups");
+  function showGroup(grup, activeId) {
+    groupsEl.querySelectorAll("button").forEach((b) => { const on = b.dataset.grup === grup; b.setAttribute("aria-selected", String(on)); b.tabIndex = on ? 0 : -1; });
+    const list = EQUIPS.filter((e) => (e.grup || "masculi") === grup);
+    tabsEl.innerHTML = list.map((e) => `<button role="tab" class="team-chip" data-id="${esc(e.id)}" aria-selected="${e.id === activeId}">${esc(e.curt || e.nom)}</button>`).join("") || '<p class="results__error">Encara no hi ha equips en aquest grup.</p>';
+    tabsEl.querySelectorAll("button").forEach((b) => b.addEventListener("click", () => load(EQUIPS.find((e) => e.id === b.dataset.id))));
+    return list;
+  }
+  groupsEl.querySelectorAll("button").forEach((b) => b.addEventListener("click", () => {
+    const first = EQUIPS.find((e) => (e.grup || "masculi") === b.dataset.grup);
+    if (first) load(first); else showGroup(b.dataset.grup, null);
+  }));
+
   (async function init() {
-    let equips = EQUIPS_RESERVA;
-    try { const d = await getJSON("/api/equips"); if (d.equips && d.equips.length) equips = d.equips; } catch (_) {}
-    tabsEl.innerHTML = equips.map((e) => `<button role="tab" data-id="${esc(e.id)}" aria-selected="false">${esc(e.nom)}</button>`).join("");
-    tabsEl.querySelectorAll("button").forEach((b) => b.addEventListener("click", () => load(equips.find((e) => e.id === b.dataset.id))));
-    const fromHash = equips.find((e) => "#" + e.id === location.hash);
-    load(fromHash || equips[0]);
+    try { const d = await getJSON("/api/equips"); if (d.equips && d.equips.length) EQUIPS = d.equips; } catch (_) {}
+    const fromHash = EQUIPS.find((e) => "#" + e.id === location.hash);
+    load(fromHash || EQUIPS[0]);
   })();
 })();

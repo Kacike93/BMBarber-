@@ -28,7 +28,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;0,800;0,900;1,500;1,800;1,900&family=Barlow:wght@400;500;600;700&family=Permanent+Marker&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/styles.css?v=20261003d">
+  <link rel="stylesheet" href="/css/styles.css?v=20261004f">
 </head>
 <body class="page-results">
 <a class="skip" href="#contingut">Salta al contingut</a>
@@ -64,7 +64,13 @@
 
   <section class="results section" aria-live="polite">
     <div class="wrap">
-      <div class="tabs results__tabs" role="tablist" aria-label="Equip" id="res-tabs"></div>
+      <div class="results__picker">
+        <div class="tabs results__groups" role="tablist" aria-label="Categoria" id="res-groups">
+          <button role="tab" data-grup="masculi" aria-selected="true">Masculí</button>
+          <button role="tab" data-grup="femeni" aria-selected="false" tabindex="-1">Femení</button>
+        </div>
+        <div class="results__teams" role="tablist" aria-label="Equip" id="res-tabs"></div>
+      </div>
 
       <header class="results__head">
         <div>
@@ -150,6 +156,6 @@
   <div class="tricolor tricolor--thin" aria-hidden="true"><i></i><i></i><i></i></div>
 </footer>
 
-<script src="/js/resultats.js?v=20261003d"></script>
+<script src="/js/resultats.js?v=20261004e"></script>
 </body>
 </html>
