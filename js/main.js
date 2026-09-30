@@ -5,16 +5,16 @@
    ========================================================== */
 const EQUIPOS = {
   femenino: [
-    { foto: "images/equipos/equipo-03.webp", nombre: "Juvenil femení" },
-    { foto: "images/equipos/equipo-00.webp", nombre: "Cadet femení" },
-    { foto: "images/equipos/equipo-05.webp", nombre: "Infantil femení" },
+    { foto: "images/equipos/equipo-03.webp", nombre: "Cadet femení" },
+    { foto: "images/equipos/equipo-00.webp", nombre: "Infantil femení" },
+    { foto: "images/equipos/equipo-05.webp", nombre: "Aleví femení" },
   ],
   masculino: [
-    { foto: "images/equipos/equipo-06.webp", nombre: "Sènior A", detalle: "Lliga Or" },
+    { foto: "images/equipos/equipo-06.webp", nombre: "Sènior A" },
     { foto: "images/equipos/equipo-07.webp", nombre: "Sènior B" },
     { foto: "images/equipos/equipo-04.webp", nombre: "Veterans" },
-    { foto: "images/equipos/equipo-01.webp", nombre: "Juvenil masculí" },
-    { foto: "images/equipos/equipo-02.webp", nombre: "Cadet masculí" },
+    { foto: "images/equipos/equipo-01.webp", nombre: "Cadet masculí" },
+    { foto: "images/equipos/equipo-02.webp", nombre: "Infantil masculí" },
     { foto: "images/equipos/equipo-09.webp", nombre: "Aleví A" },
     { foto: "images/equipos/equipo-11.webp", nombre: "Aleví B" },
     { foto: "images/equipos/equipo-10.webp", nombre: "Benjamí" },
@@ -345,4 +345,21 @@ const WEB3FORMS_KEY = "8e972b10-5ae1-4d83-b31d-f58f36d7c7be";
     .then(r => r.ok ? r.json() : Promise.reject(r.status))
     .then(d => (d.posts && d.posts.length) ? render(d.posts) : fallback())
     .catch(fallback);
+})();
+
+// Collage: les fotos apareixen una rere l'altra en arribar-hi
+(function () {
+  const box = document.querySelector(".club__photos");
+  if (!box || !("IntersectionObserver" in window)) return;
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  box.querySelectorAll("img").forEach((img, i) => { img.style.transitionDelay = `${i * 120}ms`; });
+  box.classList.add("is-hidden");
+  const io = new IntersectionObserver(es => {
+    if (es.some(e => e.isIntersecting)) {
+      box.classList.remove("is-hidden");
+      setTimeout(() => box.querySelectorAll("img").forEach(img => { img.style.transitionDelay = ""; }), 1500);
+      io.disconnect();
+    }
+  }, { threshold: 0.2 });
+  io.observe(box);
 })();
