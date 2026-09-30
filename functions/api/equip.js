@@ -8,6 +8,10 @@ import { text, firstInt, niceName } from "./classificacio.js";
 export const EQUIPS = [
   { id: "senior-a", nom: "Sènior A", url: "https://resultadosbalonmano.isquad.es/equipo.php?id_equipo=201858&id=1038541&id_superficie=1" },
   { id: "senior-b", nom: "Sènior B", url: "https://resultadosbalonmano.isquad.es/equipo.php?seleccion=0&id_equipo=201861&id=1038564&id_superficie=1" },
+  { id: "juvenil-masculi", nom: "Juvenil masculí", url: "https://resultadosbalonmano.isquad.es/equipo.php?id_equipo=201865&id=1038641&id_superficie=1" },
+  { id: "juvenil-femeni", nom: "Juvenil femení", url: "https://resultadosbalonmano.isquad.es/equipo.php?id_equipo=225708&id=1038688&id_superficie=1" },
+  { id: "cadet-masculi", nom: "Cadet masculí", url: "https://resultadosbalonmano.isquad.es/equipo.php?seleccion=0&id_superficie=1&id_equipo=212802&id=1038648" },
+  { id: "cadet-femeni", nom: "Cadet femení", url: "https://resultadosbalonmano.isquad.es/equipo.php?seleccion=0&id_superficie=1&id_equipo=219123&id=1038577" },
 ];
 
 const CACHE_SEGONS = 1800; // 30 minuts

@@ -556,7 +556,8 @@ a.sponsor:hover { transform: translateY(-4px); box-shadow: 0 16px 30px rgba(0,0,
 .page-hero__lead { max-width: 52ch; margin: 0 auto; color: var(--text-soft); }
 
 .results { color: var(--white); padding-top: clamp(2.5rem, 5vw, 3.5rem); }
-.results__tabs { margin-bottom: 2rem; flex-wrap: wrap; }
+.results__tabs { margin-bottom: 2rem; flex-wrap: wrap; border-radius: 18px; gap: 4px; }
+@media (max-width: 640px) { .results__tabs { display: grid; grid-template-columns: 1fr 1fr; width: 100%; } .results__tabs button { padding: .75rem .5rem; } }
 .results__head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: .75rem 2rem; margin-bottom: 1.5rem; }
 .results__head h2 { font-size: clamp(2.2rem, 4.5vw, 3.4rem); }
 .results__comp { margin: .4rem 0 0; font-weight: 700; color: var(--white); }
@@ -624,3 +625,14 @@ a.sponsor:hover { transform: translateY(-4px); box-shadow: 0 16px 30px rgba(0,0,
 }
 .logo-ini { display: inline-grid; place-items: center; background: var(--bg-1) !important; color: var(--yellow); font: 800 .7rem/1 var(--display); letter-spacing: .02em; box-shadow: inset 0 0 0 1px rgba(255,255,255,.18); }
 .mcard__logo.logo-ini { font-size: 1.3rem; }
+/* Sense escuts */
+.no-logos .mcard__team { font: 800 clamp(1.15rem, 2vw, 1.45rem)/1.15 var(--display); letter-spacing: .01em; text-transform: uppercase; min-height: 3.2em; justify-content: center; }
+.no-logos .mcard__teams { margin: .4rem 0 .2rem; }
+.no-logos .match__row { gap: 0; }
+.no-logos .match__row span { font-size: 1rem; }
+@media (max-width: 640px) {
+  .no-logos .mcard__team { font-size: .84rem; min-height: 0; overflow-wrap: break-word; hyphens: auto; }
+  .mcard__score { letter-spacing: 0; }
+  .no-logos .mcard__teams { grid-template-columns: minmax(0,1fr) auto minmax(0,1fr); }
+  .mcard__score { font-size: 1.75rem; }
+}

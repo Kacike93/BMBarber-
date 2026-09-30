@@ -2,6 +2,9 @@
    BM Barberà · Pàgina de resultats (dades en directe de la federació)
    Els equips es configuren a functions/api/equip.js
    ========================================================== */
+// Posa-ho a true per tornar a mostrar els escuts dels equips
+const MOSTRAR_ESCUTS = false;
+
 (function () {
   // Menú mòbil
   const menuBtn = document.querySelector(".menu-btn"), nav = document.getElementById("nav");
@@ -14,8 +17,9 @@
   }
 
   const $ = (id) => document.getElementById(id);
+  if (!MOSTRAR_ESCUTS) document.body.classList.add('no-logos');
   const tabsEl = $("res-tabs");
-  const EQUIPS_RESERVA = [{ id: "senior-a", nom: "Sènior A" }, { id: "senior-b", nom: "Sènior B" }];
+  const EQUIPS_RESERVA = [{ id: "senior-a", nom: "Sènior A" }, { id: "senior-b", nom: "Sènior B" }, { id: "juvenil-masculi", nom: "Juvenil masculí" }, { id: "juvenil-femeni", nom: "Juvenil femení" }, { id: "cadet-masculi", nom: "Cadet masculí" }, { id: "cadet-femeni", nom: "Cadet femení" }];
   const esc = (t) => String(t ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const SKIP = /^(BM|CH|CEH|AB|HANDBOL|CLUB|DE|DEL|LA|EL|I|B\.|M\.|SE|MGC|UE)$/i;
   const initials = (name) => (String(name || "").replace(/['"()]/g, " ").split(/\s+/).filter((w) => w && !SKIP.test(w)).slice(0, 2).map((w) => w[0]).join("") || "·").toUpperCase();
@@ -26,6 +30,7 @@
     img.outerHTML = img.dataset.fb;
   };
   const logo = (src, cls, name) => {
+    if (!MOSTRAR_ESCUTS) return "";
     const ini = `<span class="${cls} logo-ini" aria-hidden="true">${esc(initials(name))}</span>`;
     if (/barber/i.test(name || "")) return `<img class="${cls}" src="/images/escudo.png" alt="" loading="lazy">`;
     if (!src) return ini;
