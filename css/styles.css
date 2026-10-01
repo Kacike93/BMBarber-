@@ -679,3 +679,22 @@ a.sponsor:hover { transform: translateY(-4px); box-shadow: 0 16px 30px rgba(0,0,
   .slogan__w { font-size: clamp(.95rem, 4.7vw, 1.25rem); letter-spacing: .045em; }
   .slogan__w + .slogan__w::before { margin: 0 .3em; }
 }
+/* Botó instal·lar app */
+.nav__install, .footer__install { display: inline-flex; align-items: center; gap: .45rem; font: 700 .95rem/1 var(--body); cursor: pointer; border-radius: 999px; }
+.nav__install { margin-left: .4rem; padding: .5rem .9rem; color: var(--white); background: rgba(255,255,255,.1); border: 0; }
+.nav__install:hover { background: rgba(255,255,255,.18); }
+.nav__install[hidden], .footer__install[hidden] { display: none; }
+.footer__install { margin-top: .6rem; padding: .6rem 1rem; color: var(--green-deep); background: var(--yellow); border: 0; }
+@media (max-width: 960px) { .nav .nav__install { margin: .5rem 0 0; justify-content: center; padding: .9rem .5rem; font-size: 1.05rem; border-radius: 8px; } }
+.install-dialog { border: 0; border-radius: 20px; padding: 2rem 1.6rem 1.6rem; max-width: min(92vw, 420px); background: var(--bg-1); color: var(--white); text-align: center; box-shadow: 0 30px 60px rgba(0,0,0,.5); }
+.install-dialog::backdrop { background: rgba(4,30,16,.75); }
+.install-dialog > img { margin: 0 auto 1rem; border-radius: 16px; }
+.install-dialog h2 { font-size: 1.9rem; margin-bottom: 1.2rem; }
+.install-dialog ol { list-style: none; padding: 0; margin: 0 0 1.4rem; display: grid; gap: .9rem; text-align: left; }
+.install-dialog li { display: flex; gap: .8rem; align-items: center; color: var(--text-soft); }
+.install-dialog li strong { color: var(--white); }
+.install-dialog__ico { flex: none; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; background: var(--bg-3); color: var(--yellow); }
+.install-dialog__ico img { border-radius: 4px; }
+.install-dialog__close { position: absolute; top: 10px; right: 14px; background: none; border: 0; color: var(--text-soft); font-size: 1.8rem; cursor: pointer; }
+.install-steps { display: none !important; }
+.install-dialog.is-ios .install-steps--ios, .install-dialog.is-android .install-steps--android { display: grid !important; }

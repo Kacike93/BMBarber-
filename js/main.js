@@ -316,3 +316,36 @@ const WEB3FORMS_KEY = "8e972b10-5ae1-4d83-b31d-f58f36d7c7be";
 if ("serviceWorker" in navigator && location.protocol === "https:") {
   window.addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(() => {}));
 }
+
+// Botó "Instal·la l'app": si el navegador ho permet, obre la finestra del sistema; si no, mostra instruccions
+(function () {
+  const btns = [...document.querySelectorAll(".js-install")];
+  if (!btns.length) return;
+  const standalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+  if (standalone) return;
+  const ua = navigator.userAgent;
+  const isIOS = /iphone|ipad|ipod/i.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  const isAndroid = /android/i.test(ua);
+  const show = (on) => btns.forEach((b) => (b.hidden = !on));
+  let deferred = null;
+  const dlg = document.getElementById("install-help");
+  if (dlg) {
+    dlg.classList.add(isIOS ? "is-ios" : "is-android");
+    dlg.querySelector(".install-dialog__close").addEventListener("click", () => dlg.close());
+    dlg.querySelector(".install-dialog__ok").addEventListener("click", () => dlg.close());
+    dlg.addEventListener("click", (e) => { if (e.target === dlg) dlg.close(); });
+  }
+  window.addEventListener("beforeinstallprompt", (e) => { e.preventDefault(); deferred = e; show(true); });
+  window.addEventListener("appinstalled", () => { deferred = null; show(false); });
+  if (isIOS || isAndroid || window.__PREVIEW) show(true);
+  btns.forEach((b) => b.addEventListener("click", async () => {
+    if (deferred) {
+      deferred.prompt();
+      const choice = await deferred.userChoice.catch(() => null);
+      if (choice && choice.outcome === "accepted") show(false);
+      deferred = null;
+    } else if (dlg) {
+      dlg.showModal();
+    }
+  }));
+})();

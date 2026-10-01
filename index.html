@@ -70,7 +70,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;0,800;0,900;1,500;1,800;1,900&family=Barlow:wght@400;500;600;700&family=Permanent+Marker&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=20261011d">
+  <link rel="stylesheet" href="css/styles.css?v=20261013c">
 </head>
 <body>
 
@@ -91,6 +91,7 @@
       <a href="#resultats">Classificació</a>
       <a href="#equipos">Equips</a>
       <a href="#instagram">Instagram</a>
+      <button type="button" class="nav__install js-install" hidden><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M12 7v7"/><path d="m9 11 3 3 3-3"/><path d="M10.5 18.5h3"/></svg><span>Instal<span class="pv">·</span>la l’app</span></button>
       <a href="https://bmbarbera.playoffinformatica.com/Botiga.php" class="nav__shop" target="_blank" rel="noopener">Botiga <span aria-hidden="true">↗</span></a>
       <a href="#unete" class="nav__cta">Uneix-te</a>
     </nav>
@@ -428,10 +429,29 @@
       <a href="#patrocinadors">Patrocinadors</a>
       <a href="#unete">Uneix-te</a>
       <a href="https://bmbarbera.playoffinformatica.com/Botiga.php" target="_blank" rel="noopener">Botiga ↗</a>
+      <button type="button" class="footer__install js-install" hidden><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M12 7v7"/><path d="m9 11 3 3 3-3"/><path d="M10.5 18.5h3"/></svg><span>Instal<span class="pv">·</span>la l’app al mòbil</span></button>
     </nav>
   </div>
   <div class="tricolor tricolor--thin" aria-hidden="true"><i></i><i></i><i></i></div>
 </footer>
+
+<!-- Instruccions per instal·lar a iPhone -->
+<dialog class="install-dialog" id="install-help" aria-labelledby="install-help-title">
+  <button class="install-dialog__close" aria-label="Tanca">×</button>
+  <img src="images/icon-192.png" alt="" width="72" height="72">
+  <h2 id="install-help-title">Instal<span class="pv">·</span>la l’app del BM Barberà</h2>
+  <ol class="install-steps install-steps--ios">
+    <li><span class="install-dialog__ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m8 7 4-4 4 4"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg></span> <span>Toca el botó <strong>Comparteix</strong> de Safari (a baix de tot).</span></li>
+    <li><span class="install-dialog__ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M12 8v8M8 12h8"/></svg></span> <span>Tria <strong>Afegeix a la pantalla d’inici</strong>.</span></li>
+    <li><span class="install-dialog__ico"><img src="images/icon-192.png" alt="" width="20" height="20"></span> <span>Toca <strong>Afegeix</strong> i ja tindràs l’escut del club amb les altres apps.</span></li>
+  </ol>
+  <ol class="install-steps install-steps--android">
+    <li><span class="install-dialog__ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg></span> <span>Toca el menú <strong>⋮</strong> del navegador (a dalt a la dreta).</span></li>
+    <li><span class="install-dialog__ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M12 8v8M8 12h8"/></svg></span> <span>Tria <strong>Instal<span class="pv">·</span>la l’aplicació</strong> o <strong>Afegeix a la pantalla d’inici</strong>.</span></li>
+    <li><span class="install-dialog__ico"><img src="images/icon-192.png" alt="" width="20" height="20"></span> <span>Confirma-ho i ja tindràs l’escut del club amb les altres apps.</span></li>
+  </ol>
+  <button class="btn btn--yellow btn--block install-dialog__ok">D’acord</button>
+</dialog>
 
 <!-- Visor de fotos -->
 <dialog class="lightbox" id="lightbox" aria-label="Foto ampliada">
@@ -444,7 +464,7 @@
   <button class="lightbox__nav lightbox__next" aria-label="Foto següent">›</button>
 </dialog>
 
-<script src="js/main.js?v=20261012a"></script>
+<script src="js/main.js?v=20261013c"></script>
 <script src="js/resultats.js?v=20261008a"></script>
 </body>
 </html>
