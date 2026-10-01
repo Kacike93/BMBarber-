@@ -172,12 +172,12 @@ p { margin: 0 0 1em; }
   opacity: 0; animation: sloganTail .7s cubic-bezier(.2,.7,.2,1) forwards 1.05s;
 }
 /* Lletres que salten en passar el ratolí */
-.slogan__w { cursor: default; transition: color .25s ease; }
+.slogan__w { cursor: default; transition: color .25s ease; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
 .slogan__w .ch { display: inline-block; }
-.slogan__w--1:hover { color: #FF3B30; }
-.slogan__w--2:hover { color: var(--yellow); }
-.slogan__w--3:hover { color: #3DDC84; }
-.slogan__w:hover .ch { animation: letterJump .55s cubic-bezier(.3,.7,.3,1.4) both; animation-delay: calc(var(--i) * 45ms); }
+.slogan__w--1:hover, .slogan__w--1.is-tap { color: #FF3B30; }
+.slogan__w--2:hover, .slogan__w--2.is-tap { color: var(--yellow); }
+.slogan__w--3:hover, .slogan__w--3.is-tap { color: #3DDC84; }
+.slogan__w:hover .ch, .slogan__w.is-tap .ch { animation: letterJump .55s cubic-bezier(.3,.7,.3,1.4) both; animation-delay: calc(var(--i) * 45ms); }
 @keyframes letterJump { 0% { transform: translateY(0); } 35% { transform: translateY(-.35em) rotate(-6deg); } 65% { transform: translateY(.05em); } 100% { transform: translateY(0); } }
 .slogan__tail { transition: rotate .3s ease, scale .3s ease; }
 .slogan__tail:hover { rotate: 3deg; scale: 1.08; }
@@ -674,3 +674,8 @@ a.sponsor:hover { transform: translateY(-4px); box-shadow: 0 16px 30px rgba(0,0,
 .respect__text span { color: var(--text-soft); }
 .respect__btn { flex: none; }
 @media (max-width: 560px) { .respect__btn { width: 100%; } }
+.slogan__tail { -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
+@media (max-width: 440px) {
+  .slogan__w { font-size: clamp(.95rem, 4.7vw, 1.25rem); letter-spacing: .045em; }
+  .slogan__w + .slogan__w::before { margin: 0 .3em; }
+}

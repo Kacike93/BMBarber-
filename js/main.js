@@ -304,5 +304,10 @@ const WEB3FORMS_KEY = "8e972b10-5ae1-4d83-b31d-f58f36d7c7be";
       s.className = "ch"; s.style.setProperty("--i", i); s.textContent = c;
       w.appendChild(s);
     });
+    // Mòbil: en tocar la paraula, activa l'efecte (salt + color) un moment
+    w.addEventListener("touchstart", () => {
+      w.classList.remove("is-tap"); void w.offsetWidth; w.classList.add("is-tap");
+      clearTimeout(w._t); w._t = setTimeout(() => w.classList.remove("is-tap"), 1100);
+    }, { passive: true });
   });
 })();
