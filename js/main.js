@@ -24,25 +24,6 @@ const EQUIPOS = {
 
 
 
-/* Classificació del primer equip: DADES DE RESERVA.
-   La web carrega la classificació en directe automàticament.
-   Aquestes dades només es mostren si la federació no respon.
-   "ratxa" són els últims resultats, del més antic al més recent (G, E o P).
-   "nosaltres: true" marca la fila del BM Barberà. */
-const CLASSIFICACIO = {
-  competicio: "Lliga Catalana Or · 1a fase · Grup B",
-  actualitzat: "Després de la jornada 2",
-  equips: [
-    { equip: "AB Investments Joventut Mataró", pt: 4, pj: 2, pg: 2, pe: 0, pp: 0, gf: 79, gc: 58, ratxa: "GG" },
-    { equip: "Keynet H. Cooperativa Sant Boi", pt: 2, pj: 2, pg: 1, pe: 0, pp: 1, gf: 59, gc: 47, ratxa: "PG" },
-    { equip: "Mubak BM La Roca", pt: 2, pj: 2, pg: 1, pe: 0, pp: 1, gf: 68, gc: 63, ratxa: "GP" },
-    { equip: "CH Vilamajor (SMA)", pt: 2, pj: 2, pg: 1, pe: 0, pp: 1, gf: 55, gc: 52, ratxa: "PG" },
-    { equip: "Handbol Banyoles A", pt: 2, pj: 2, pg: 1, pe: 0, pp: 1, gf: 49, gc: 52, ratxa: "GP" },
-    { equip: "Handbol Sant Cugat B", pt: 2, pj: 2, pg: 1, pe: 0, pp: 1, gf: 53, gc: 58, ratxa: "GP" },
-    { equip: "CH Sant Andreu A", pt: 2, pj: 2, pg: 1, pe: 0, pp: 1, gf: 57, gc: 67, ratxa: "PG" },
-    { equip: "BM Barberà 'A'", pt: 0, pj: 2, pg: 0, pe: 0, pp: 2, gf: 48, gc: 71, ratxa: "PP", nosaltres: true },
-  ],
-};
 
 
 /* Patrocinadors.
@@ -143,57 +124,6 @@ tabs.forEach((tab, i) => {
   });
 });
 
-// Classificació: primer intenta les dades en directe (/api/classificacio);
-// si no hi ha connexió amb la federació, mostra les dades de reserva de dalt.
-(function () {
-  const body = document.getElementById("st-body");
-  if (!body) return;
-  const crest = document.querySelector(".brand img").getAttribute("src");
-  const compEl = document.getElementById("st-comp");
-  const updEl = document.getElementById("st-updated");
-
-  const niceComp = (t) => t.split(/\s+-\s+/).map(part =>
-    part.toLocaleLowerCase("ca").replace(/(^|\s)(\p{L})/gu, (m, sp, c) => sp + c.toLocaleUpperCase("ca"))
-  ).join(" · ");
-
-  function render(data, live) {
-    body.innerHTML = "";
-    compEl.textContent = data.competicio ? (live ? niceComp(data.competicio) : data.competicio) : CLASSIFICACIO.competicio;
-    if (live) {
-      const d = new Date(data.actualitzat);
-      const hora = d.toLocaleTimeString("ca-ES", { hour: "2-digit", minute: "2-digit" });
-      const dia = d.toLocaleDateString("ca-ES", { day: "numeric", month: "long" });
-      updEl.innerHTML = `<span class="live-dot" aria-hidden="true"></span>Jornada ${data.jornada} · actualitzat el ${dia} a les ${hora}`;
-    } else {
-      updEl.textContent = CLASSIFICACIO.actualitzat;
-    }
-    const table = body.closest("table");
-    table.classList.toggle("no-form", !data.equips.some(r => r.ratxa));
-    data.equips.forEach((r, i) => {
-      const dif = r.gf - r.gc;
-      const tr = document.createElement("tr");
-      if (r.nosaltres) tr.className = "is-us";
-      const form = [...(r.ratxa || "")].slice(-5).map(x => `<span class="f f--${x.toLowerCase()}">${x}</span>`).join("");
-      tr.innerHTML = `
-        <td class="c-pos">${i + 1}</td>
-        <th scope="row" class="c-team"><span class="team-name">${r.nosaltres ? `<img src="${crest}" alt="" width="18" height="25">` : ""}${r.equip}</span></th>
-        <td class="c-pt">${r.pt}</td>
-        <td>${r.pj}</td><td>${r.pg}</td><td class="c-hide">${r.pe}</td><td>${r.pp}</td>
-        <td class="c-hide">${r.gf}</td><td class="c-hide">${r.gc}</td>
-        <td class="${dif > 0 ? "pos" : dif < 0 ? "neg" : ""}">${dif > 0 ? "+" : ""}${dif}</td>
-        <td class="c-form"><span class="streak">${form}</span></td>`;
-      body.appendChild(tr);
-    });
-  }
-
-  render(CLASSIFICACIO, false);
-  if (location.protocol.startsWith("http")) {
-    fetch("/api/classificacio")
-      .then(r => r.ok ? r.json() : Promise.reject(r.status))
-      .then(data => { if (data && data.equips && data.equips.length) render(data, true); })
-      .catch(() => { /* es queden les dades de reserva */ });
-  }
-})();
 
 // Formulari "Uneix-te"
 // Enganxa aquí la clau (Access Key) de Web3Forms que et va arribar per correu.

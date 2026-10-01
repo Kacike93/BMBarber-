@@ -65,7 +65,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;0,800;0,900;1,500;1,800;1,900&family=Barlow:wght@400;500;600;700&family=Permanent+Marker&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=20261004f">
+  <link rel="stylesheet" href="css/styles.css?v=20261007a">
 </head>
 <body>
 
@@ -83,7 +83,7 @@
     <nav id="nav" class="nav">
       <a href="#club">El club</a>
       <a href="#valores">Valors</a>
-      <a href="/resultats">Resultats</a>
+      <a href="#resultats">Classificació</a>
       <a href="#equipos">Equips</a>
       <a href="#instagram">Instagram</a>
       <a href="https://bmbarbera.playoffinformatica.com/Botiga.php" class="nav__shop" target="_blank" rel="noopener">Botiga <span aria-hidden="true">↗</span></a>
@@ -207,53 +207,64 @@
     </div>
   </section>
 
-  <!-- MOMENTO DESTACADO -->
-  <section class="moment">
-    <img src="images/galeria/abrazo-permanencia.webp" alt="Jugadors del sènior abraçant nens de la base després d'aconseguir la permanència" loading="lazy" width="1170" height="981">
-    <div class="moment__card">
-      <p class="moment__tag">Temp. 2025/2026</p>
-      <h2>Una temporada més a la Lliga Or</h2>
-      <p>El sènior A masculí va aconseguir la permanència i ho va celebrar a la pista amb l'afició i els equips de base del club.</p>
-    </div>
-  </section>
-
-
-  <!-- CLASSIFICACIÓ -->
-  <section class="standings section" id="classificacio">
+  <!-- RESULTATS -->
+  <section class="results section" id="resultats" aria-live="polite">
     <div class="wrap">
-      <div class="section__head">
+      <div class="section__head results__title">
         <div>
-          <p class="standings__kicker">Primer equip · Sènior masculí</p>
-          <h2>Classificació</h2>
-        </div>
-        <p class="standings__comp"><span id="st-comp"></span><br><span id="st-updated"></span></p>
-      </div>
-      <div class="standings__card">
-        <div class="standings__scroll">
-          <table class="standings__table">
-            <thead>
-              <tr>
-                <th scope="col" class="c-pos"><abbr title="Posició">#</abbr></th>
-                <th scope="col" class="c-team">Equip</th>
-                <th scope="col" class="c-pt"><abbr title="Punts">PT</abbr></th>
-                <th scope="col"><abbr title="Partits jugats">PJ</abbr></th>
-                <th scope="col"><abbr title="Partits guanyats">PG</abbr></th>
-                <th scope="col" class="c-hide"><abbr title="Partits empatats">PE</abbr></th>
-                <th scope="col"><abbr title="Partits perduts">PP</abbr></th>
-                <th scope="col" class="c-hide"><abbr title="Gols a favor">GF</abbr></th>
-                <th scope="col" class="c-hide"><abbr title="Gols en contra">GC</abbr></th>
-                <th scope="col"><abbr title="Diferència de gols">DIF</abbr></th>
-                <th scope="col" class="c-form">Ratxa</th>
-              </tr>
-            </thead>
-            <tbody id="st-body"></tbody>
-          </table>
-        </div>
-        <div class="standings__foot">
-          <a class="btn btn--yellow btn--sm" href="/resultats">Tots els resultats →</a>
-          <a class="btn btn--ghost btn--sm" href="https://resultadosbalonmano.isquad.es/clasificacion.php?seleccion=0&amp;id=1038541&amp;id_ambito=0&amp;id_territorial=17&amp;id_superficie=1&amp;iframe=0&amp;id_categoria=3077&amp;id_competicion=211864" target="_blank" rel="noopener">Classificació en directe ↗</a>
+          <p class="standings__kicker">Temporada 2026/2027 · Dades en directe de la federació</p>
+          <h2>Classificació i resultats</h2>
         </div>
       </div>
+      <div class="results__picker">
+        <div class="tabs results__groups" role="tablist" aria-label="Categoria" id="res-groups">
+          <button role="tab" data-grup="masculi" aria-selected="true">Masculí</button>
+          <button role="tab" data-grup="femeni" aria-selected="false" tabindex="-1">Femení</button>
+          <button role="tab" data-grup="mixt" aria-selected="false" tabindex="-1">Mixt</button>
+        </div>
+        <div class="results__teams" role="tablist" aria-label="Equip" id="res-tabs"></div>
+      </div>
+
+      <header class="results__head">
+        <div>
+          <h3 id="res-team">Carregant…</h3>
+          <p class="results__comp" id="res-comp"></p>
+        </div>
+        <p class="results__updated" id="res-updated"></p>
+      </header>
+
+      <div class="results__cards" id="res-cards"></div>
+
+      <div class="results__grid">
+        <div class="results__block">
+          <h3>Classificació</h3>
+          <div class="standings__card">
+            <div class="standings__scroll">
+              <table class="standings__table">
+                <thead><tr>
+                  <th scope="col" class="c-pos"><abbr title="Posició">#</abbr></th>
+                  <th scope="col" class="c-team">Equip</th>
+                  <th scope="col" class="c-pt"><abbr title="Punts">PT</abbr></th>
+                  <th scope="col"><abbr title="Partits jugats">PJ</abbr></th>
+                  <th scope="col"><abbr title="Partits guanyats">PG</abbr></th>
+                  <th scope="col" class="c-hide"><abbr title="Partits empatats">PE</abbr></th>
+                  <th scope="col"><abbr title="Partits perduts">PP</abbr></th>
+                  <th scope="col" class="c-hide"><abbr title="Gols a favor">GF</abbr></th>
+                  <th scope="col" class="c-hide"><abbr title="Gols en contra">GC</abbr></th>
+                  <th scope="col"><abbr title="Diferència de gols">DIF</abbr></th>
+                </tr></thead>
+                <tbody id="res-table"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="results__block">
+          <h3>Partits</h3>
+          <ol class="matches" id="res-matches"></ol>
+        </div>
+      </div>
+
+      <p class="results__source"><a class="btn btn--ghost btn--sm" id="res-source" href="#" target="_blank" rel="noopener">Veure a la web de la federació ↗</a></p>
     </div>
   </section>
 
@@ -398,7 +409,7 @@
     </div>
     <nav class="footer__nav" aria-label="Peu de pàgina">
       <a href="#club">El club</a>
-      <a href="/resultats">Resultats</a>
+      <a href="#resultats">Classificació</a>
       <a href="#equipos">Equips</a>
       <a href="#instagram">Instagram</a>
       <a href="#patrocinadors">Patrocinadors</a>
@@ -420,6 +431,7 @@
   <button class="lightbox__nav lightbox__next" aria-label="Foto següent">›</button>
 </dialog>
 
-<script src="js/main.js?v=20261001c"></script>
+<script src="js/main.js?v=20261006a"></script>
+<script src="js/resultats.js?v=20261008a"></script>
 </body>
 </html>

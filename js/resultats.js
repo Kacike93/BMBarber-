@@ -6,23 +6,17 @@
 const MOSTRAR_ESCUTS = false;
 
 (function () {
-  // Menú mòbil
-  const menuBtn = document.querySelector(".menu-btn"), nav = document.getElementById("nav");
-  if (menuBtn && nav) {
-    menuBtn.addEventListener("click", () => {
-      const open = menuBtn.getAttribute("aria-expanded") === "true";
-      menuBtn.setAttribute("aria-expanded", String(!open));
-      nav.classList.toggle("is-open", !open);
-    });
-  }
 
   const $ = (id) => document.getElementById(id);
+  if (!document.getElementById("res-tabs")) return;
   if (!MOSTRAR_ESCUTS) document.body.classList.add('no-logos');
   const tabsEl = $("res-tabs");
   const EQUIPS_RESERVA = [
     { id: "senior-a", grup: "masculi", curt: "Sènior A", nom: "Sènior A masculí" }, { id: "senior-b", grup: "masculi", curt: "Sènior B", nom: "Sènior B masculí" },
-    { id: "juvenil-masculi", grup: "masculi", curt: "Juvenil", nom: "Juvenil masculí" }, { id: "cadet-masculi", grup: "masculi", curt: "Cadet", nom: "Cadet masculí" },
-    { id: "juvenil-femeni", grup: "femeni", curt: "Juvenil", nom: "Juvenil femení" }, { id: "cadet-femeni", grup: "femeni", curt: "Cadet", nom: "Cadet femení" }];
+    { id: "master-masculi", grup: "masculi", curt: "Màster", nom: "Màster masculí" }, { id: "juvenil-masculi", grup: "masculi", curt: "Juvenil", nom: "Juvenil masculí" },
+    { id: "cadet-masculi", grup: "masculi", curt: "Cadet", nom: "Cadet masculí" }, { id: "infantil-masculi", grup: "masculi", curt: "Infantil A", nom: "Infantil A masculí" }, { id: "infantil-atletic-masculi", grup: "masculi", curt: "Infantil Atlètic", nom: "Infantil Atlètic masculí" },
+    { id: "juvenil-femeni", grup: "femeni", curt: "Juvenil", nom: "Juvenil femení" }, { id: "cadet-femeni", grup: "femeni", curt: "Cadet", nom: "Cadet femení" },
+    { id: "infantil-femeni", grup: "femeni", curt: "Infantil", nom: "Infantil femení" }, { id: "alevi-mixt", grup: "mixt", curt: "Aleví A", nom: "Aleví A mixt" }, { id: "alevi-atletic-mixt", grup: "mixt", curt: "Aleví Atlètic", nom: "Aleví Atlètic mixt" }];
   const esc = (t) => String(t ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const SKIP = /^(BM|CH|CEH|AB|HANDBOL|CLUB|DE|DEL|LA|EL|I|B\.|M\.|SE|MGC|UE)$/i;
   const initials = (name) => (String(name || "").replace(/['"()]/g, " ").split(/\s+/).filter((w) => w && !SKIP.test(w)).slice(0, 2).map((w) => w[0]).join("") || "·").toUpperCase();
@@ -65,6 +59,7 @@ const MOSTRAR_ESCUTS = false;
   const venue = (lloc) => lloc ? `<span class="venue ${isHome(lloc) ? "venue--home" : "venue--away"}" title="${isHome(lloc) ? "A casa" : "Fora de casa"}"><span class="venue__ico" aria-hidden="true">${isHome(lloc) ? ICON_HOME : ICON_AWAY}</span>${esc(lloc)}</span>` : "";
 
   function card(m, type) {
+    if (type === "next" && !m) return `<article class="mcard"><p class="mcard__label">Proper partit</p><p class="mcard__empty">Pendent del calendari de la següent fase.</p></article>`;
     const title = type === "next" ? "Proper partit" : "Últim resultat";
     if (!m) return `<article class="mcard ${type === "last" ? "mcard--last" : ""}"><p class="mcard__label">${title}</p><p class="mcard__empty">${type === "next" ? "No hi ha cap partit pendent." : "Encara no s'ha jugat cap partit."}</p></article>`;
     const d = dt(m.data);
@@ -120,7 +115,8 @@ const MOSTRAR_ESCUTS = false;
     const pending = ps.filter((m) => m.estat !== "finalitzat");
     const last = played.slice().sort((a, b) => (b.data || "").localeCompare(a.data || ""))[0] || null;
     const next = pending.filter((m) => m.data).sort((a, b) => a.data.localeCompare(b.data))[0] || pending[0] || null;
-    $("res-cards").innerHTML = card(next, "next") + card(last, "last");
+    const phaseDone = ps.length > 0 && pending.length === 0;
+    $("res-cards").innerHTML = (phaseDone ? `<div class="phase-done"><strong>Fase finalitzada</strong><span>Aviat començarà la següent fase. Mentrestant, aquí tens tots els resultats.</span></div>` : "") + card(next, "next") + card(last, "last");
 
     $("res-table").innerHTML = (d.classificacio || []).map((r) => {
       const dif = r.gf - r.gc;
@@ -141,9 +137,9 @@ const MOSTRAR_ESCUTS = false;
     $("res-matches").innerHTML = '<li><span class="skel"></span></li><li><span class="skel"></span></li><li><span class="skel"></span></li>';
   }
 
-  async function load(eq) {
+  async function load(eq, fromUser = true) {
     showGroup(eq.grup || "masculi", eq.id);
-    if (location.hash !== "#" + eq.id) history.replaceState(null, "", "#" + eq.id);
+    if (fromUser && location.hash !== "#" + eq.id) history.replaceState(null, "", "#" + eq.id);
     $("res-team").textContent = eq.nom; $("res-comp").textContent = ""; $("res-updated").textContent = "";
     loading();
     try {
@@ -172,7 +168,10 @@ const MOSTRAR_ESCUTS = false;
 
   (async function init() {
     try { const d = await getJSON("/api/equips"); if (d.equips && d.equips.length) EQUIPS = d.equips; } catch (_) {}
+    // Grup segons el nom si no ve indicat (els equips "femení" sempre a Femení)
+    EQUIPS = EQUIPS.map((e) => ({ ...e, grup: /femen/i.test(e.nom || "") ? "femeni" : /mixt/i.test(e.nom || "") ? "mixt" : (e.grup || "masculi") }));
     const fromHash = EQUIPS.find((e) => "#" + e.id === location.hash);
-    load(fromHash || EQUIPS[0]);
+    load(fromHash || EQUIPS[0], false);
+    if (fromHash || location.hash === "#resultats") setTimeout(() => document.getElementById("resultats")?.scrollIntoView(), 50);
   })();
 })();

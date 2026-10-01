@@ -1,18 +1,40 @@
-// /api/equips            -> llista d'equips disponibles a la pàgina de resultats
+// /api/equips            -> llista d'equips de la pàgina de resultats
 // /api/equip?id=senior-a -> classificació i partits d'un equip (dades de la federació)
 //
-// PER AFEGIR UN EQUIP: copia una línia d'EQUIPS i enganxa l'enllaç de la seva
-// pàgina a resultadosbalonmano.isquad.es (la pàgina "equipo.php" de l'equip).
+// ─────────────────────────────────────────────────────────────────────────────
+//  CONFIGURACIÓ DELS EQUIPS
+//  Cada enllaç de la federació té dos números:
+//     equipo.php?id_equipo=201858&id=1038541
+//                          ^^^^^^    ^^^^^^^
+//                          equip     fase (competició + fase + grup)
+//  · equip: la fitxa de l'equip aquesta temporada (normalment no canvia).
+//  · fase:  canvia quan comença una fase nova -> NOMÉS CAL CANVIAR AQUEST NÚMERO.
+//  grup: "masculi", "femeni" o "mixt" · curt: text del botó · nom: títol
+// ─────────────────────────────────────────────────────────────────────────────
 import { text, firstInt, niceName } from "./classificacio.js";
 
-export const EQUIPS = [
-  { id: "senior-a", nom: "Sènior A", url: "https://resultadosbalonmano.isquad.es/equipo.php?id_equipo=201858&id=1038541&id_superficie=1" },
-  { id: "senior-b", nom: "Sènior B", url: "https://resultadosbalonmano.isquad.es/equipo.php?seleccion=0&id_equipo=201861&id=1038564&id_superficie=1" },
-  { id: "juvenil-masculi", nom: "Juvenil masculí", url: "https://resultadosbalonmano.isquad.es/equipo.php?id_equipo=201865&id=1038641&id_superficie=1" },
-  { id: "juvenil-femeni", nom: "Juvenil femení", url: "https://resultadosbalonmano.isquad.es/equipo.php?id_equipo=225708&id=1038688&id_superficie=1" },
-  { id: "cadet-masculi", nom: "Cadet masculí", url: "https://resultadosbalonmano.isquad.es/equipo.php?seleccion=0&id_superficie=1&id_equipo=212802&id=1038648" },
-  { id: "cadet-femeni", nom: "Cadet femení", url: "https://resultadosbalonmano.isquad.es/equipo.php?seleccion=0&id_superficie=1&id_equipo=219123&id=1038577" },
+const EQUIPS_CONFIG = [
+  // MASCULÍ
+  { id: "senior-a",        grup: "masculi", curt: "Sènior A", nom: "Sènior A masculí",  equip: 201858, fase: 1038541 },
+  { id: "senior-b",        grup: "masculi", curt: "Sènior B", nom: "Sènior B masculí",  equip: 201861, fase: 1038564 },
+  { id: "master-masculi",  grup: "masculi", curt: "Màster",   nom: "Màster masculí",    equip: 222713, fase: 1040350 },
+  { id: "juvenil-masculi", grup: "masculi", curt: "Juvenil",  nom: "Juvenil masculí",   equip: 201865, fase: 1038641 },
+  { id: "cadet-masculi",   grup: "masculi", curt: "Cadet",    nom: "Cadet masculí",     equip: 212802, fase: 1038648 },
+  { id: "infantil-masculi",grup: "masculi", curt: "Infantil A", nom: "Infantil A masculí", equip: 201867, fase: 1038654 },
+  { id: "infantil-atletic-masculi", grup: "masculi", curt: "Infantil Atlètic", nom: "Infantil Atlètic masculí", equip: 225709, fase: 1038760 },
+  // FEMENÍ
+  { id: "juvenil-femeni",  grup: "femeni",  curt: "Juvenil",  nom: "Juvenil femení",    equip: 225708, fase: 1038688 },
+  { id: "cadet-femeni",    grup: "femeni",  curt: "Cadet",    nom: "Cadet femení",      equip: 219123, fase: 1038577 },
+  { id: "infantil-femeni", grup: "femeni",  curt: "Infantil", nom: "Infantil femení",   equip: 210508, fase: 1038703 },
+  // MIXT
+  { id: "alevi-mixt",      grup: "mixt",    curt: "Aleví A",  nom: "Aleví A mixt",      equip: 210347, fase: 1040304 },
+  { id: "alevi-atletic-mixt", grup: "mixt", curt: "Aleví Atlètic", nom: "Aleví Atlètic mixt", equip: 222330, fase: 1040311 },
 ];
+
+export const EQUIPS = EQUIPS_CONFIG.map((e) => ({
+  ...e,
+  url: `https://resultadosbalonmano.isquad.es/equipo.php?seleccion=0&id_superficie=1&id_equipo=${e.equip}&id=${e.fase}`,
+}));
 
 const CACHE_SEGONS = 1800; // 30 minuts
 
@@ -137,7 +159,9 @@ const json = (obj, status = 200, maxAge = CACHE_SEGONS) =>
   });
 
 export async function onRequestList() {
-  return json({ equips: EQUIPS.map(({ id, nom, url }) => ({ id, nom, font: url })) }, 200, 3600);
+  const r = json({ equips: EQUIPS.map(({ id, grup, curt, nom, url }) => ({ id, grup, curt, nom, font: url })) }, 200, 0);
+  r.headers.set("Cache-Control", "public, max-age=60");
+  return r;
 }
 
 export async function onRequestGet(context) {
@@ -146,7 +170,7 @@ export async function onRequestGet(context) {
   if (!eq) return json({ error: "Equip desconegut" }, 404, 0);
 
   const cache = caches.default;
-  const cacheKey = new Request(`${url.origin}/api/equip?id=${eq.id}&v=3`);
+  const cacheKey = new Request(`${url.origin}/api/equip?id=${eq.id}&f=${eq.fase}&e=${eq.equip}`);
   try { const hit = await cache.match(cacheKey); if (hit) return hit; } catch (_) {}
 
   try {
