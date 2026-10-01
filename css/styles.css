@@ -666,3 +666,11 @@ a.sponsor:hover { transform: translateY(-4px); box-shadow: 0 16px 30px rgba(0,0,
 .standings__phase { margin: 0 0 1rem; }
 .results { background: var(--bg-2); }
 .results__title { margin-bottom: 1.5rem; }
+/* Campanya L'handbol és respecte */
+.respect { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 1.5rem; margin-top: 1.75rem; padding: 1.4rem 1.6rem; border-radius: 20px; background: linear-gradient(100deg, rgba(255,74,61,.16), rgba(255,74,61,.04) 60%), var(--bg-3); box-shadow: inset 0 0 0 1px rgba(255,74,61,.35); }
+.respect__icon { flex: none; display: grid; place-items: center; width: 56px; height: 56px; border-radius: 16px; background: #FF4A3D; color: var(--white); }
+.respect__text { flex: 1 1 320px; display: grid; gap: .3rem; }
+.respect__text strong { font: 800 clamp(1.4rem, 2.4vw, 1.8rem)/1.05 var(--display); text-transform: uppercase; color: var(--white); }
+.respect__text span { color: var(--text-soft); }
+.respect__btn { flex: none; }
+@media (max-width: 560px) { .respect__btn { width: 100%; } }
