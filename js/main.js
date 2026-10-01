@@ -105,7 +105,7 @@ renderTeams("femenino", "panel-fem");
 renderTeams("masculino", "panel-masc");
 
 // Pestañas femenino / masculino
-const tabs = [...document.querySelectorAll('[role="tab"]')];
+const tabs = [...document.querySelectorAll('#equipos [role="tab"]')];
 function selectTab(tab) {
   tabs.forEach(t => {
     const on = t === tab;

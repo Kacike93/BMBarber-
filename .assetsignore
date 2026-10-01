@@ -3,3 +3,5 @@ functions
 wrangler.jsonc
 README.txt
 .assetsignore
+.git
+node_modules
