@@ -1,0 +1,23 @@
+{
+  "name": "BM Barberà · Handbol Barberà",
+  "short_name": "BM Barberà",
+  "description": "Club d'handbol de Barberà del Vallès: equips, resultats i classificacions en directe.",
+  "lang": "ca",
+  "id": "/",
+  "start_url": "/?app=1",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#06361D",
+  "theme_color": "#06361D",
+  "categories": ["sports"],
+  "icons": [
+    { "src": "/images/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/images/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/images/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Classificació i resultats", "short_name": "Resultats", "url": "/#resultats", "icons": [{ "src": "/images/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Uneix-te al club", "short_name": "Uneix-te", "url": "/#unete", "icons": [{ "src": "/images/icon-192.png", "sizes": "192x192" }] }
+  ]
+}

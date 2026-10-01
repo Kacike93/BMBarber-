@@ -311,3 +311,8 @@ const WEB3FORMS_KEY = "8e972b10-5ae1-4d83-b31d-f58f36d7c7be";
     }, { passive: true });
   });
 })();
+
+// App: registra el service worker (permet instal·lar la web al mòbil)
+if ("serviceWorker" in navigator && location.protocol === "https:") {
+  window.addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(() => {}));
+}
