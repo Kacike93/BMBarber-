@@ -2,7 +2,6 @@
 import { onRequestGet as classificacio } from "../functions/api/classificacio.js";
 import { onRequestGet as instagram } from "../functions/api/instagram.js";
 import { onRequestGet as equip, onRequestList as equips, onRequestLogo as logo } from "../functions/api/equip.js";
-import { onRequestPage as recullPage, onRequestSave as recullSave } from "../functions/api/escuts-recull.js";
 
 export default {
   async fetch(request, env, ctx) {
@@ -13,8 +12,6 @@ export default {
     if (url.pathname === "/api/equips") return equips(context);
     if (url.pathname === "/api/equip") return equip(context);
     if (url.pathname === "/api/logo") return logo(context);
-    if (url.pathname === "/api/escuts-recull") return recullPage(context);
-    if (url.pathname === "/api/escuts-desa") return recullSave(context);
     return env.ASSETS.fetch(request);
   },
 };

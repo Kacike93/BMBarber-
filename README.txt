@@ -33,6 +33,13 @@ Cada enllaç de la federació té dos números:
 Quan un equip acaba tots els partits d'una fase, la web mostra
 l'avís "Fase finalitzada" fins que s'hi posi la fase nova.
 
+ESCUTS DELS RIVALS
+- Desats a images/escuts/<número de club>.webp (el número surt a l'adreça
+  de l'escut a la federació: .../afiliacion_clubs/<número>/...).
+- Llista de clubs amb escut: js/resultats.js -> ESCUTS.
+- Si apareix un club nou sense escut desat, la web el demana a la federació
+  a través del Worker (/api/logo). Si falla, es mostra només el nom.
+
 SERVEIS EXTERNS
 - Formulari "Uneix-te": Web3Forms (clau a js/main.js -> WEB3FORMS_KEY)
   Els correus arriben a l'adreça configurada al panell de web3forms.com

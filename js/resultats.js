@@ -2,8 +2,8 @@
    BM Barberà · Pàgina de resultats (dades en directe de la federació)
    Els equips es configuren a functions/api/equip.js
    ========================================================== */
-// Posa-ho a true per tornar a mostrar els escuts dels equips
-const MOSTRAR_ESCUTS = false;
+// Escuts dels equips (els dels rivals estan desats a images/escuts/<número de club>.webp)
+const MOSTRAR_ESCUTS = true;
 
 (function () {
 
@@ -20,20 +20,19 @@ const MOSTRAR_ESCUTS = false;
   const esc = (t) => String(t ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const SKIP = /^(BM|CH|CEH|AB|HANDBOL|CLUB|DE|DEL|LA|EL|I|B\.|M\.|SE|MGC|UE)$/i;
   const initials = (name) => (String(name || "").replace(/['"()]/g, " ").split(/\s+/).filter((w) => w && !SKIP.test(w)).slice(0, 2).map((w) => w[0]).join("") || "·").toUpperCase();
-  // Escuts: 1) directe de la federació sense "referer", 2) a través del nostre Worker, 3) inicials
-  window.__logoFail = (img) => {
-    const step = +(img.dataset.step || 0);
-    if (step === 0 && img.dataset.direct) { img.dataset.step = 1; img.src = "/api/logo?u=" + encodeURIComponent(img.dataset.direct); return; }
-    img.outerHTML = img.dataset.fb;
-  };
+  // Clubs amb escut desat a la web (número de club de la federació)
+  const ESCUTS = new Set([169,170,172,173,175,177,179,180,181,182,202,206,209,214,781,804,2894,2900,2905,100104,100110,100112,100114,100116,100118,100119,100120,100122,100123,100127,100151,100154,100155,100192,100195,100197,100210,100220,100473,100827,101037]);
+  const clubOf = (src) => +((String(src || "").match(/afiliacion_clubs\/(\d+)\//) || [])[1] || 0);
   const logo = (src, cls, name) => {
     if (!MOSTRAR_ESCUTS) return "";
-    const ini = `<span class="${cls} logo-ini" aria-hidden="true">${esc(initials(name))}</span>`;
-    if (/barber/i.test(name || "")) return `<img class="${cls}" src="/images/escudo.png" alt="" loading="lazy">`;
-    if (!src) return ini;
-    const direct = src.startsWith("/api/logo") ? "" : src;
-    return `<img class="${cls}" src="${esc(src)}" alt="" loading="lazy" referrerpolicy="no-referrer" data-direct="${esc(direct)}" onerror="__logoFail(this)" data-fb='${ini.replace(/'/g, "&#39;")}'>`;
+    if (/barber/i.test(name || "")) return `<img class="${cls} logo--own" src="/images/escudo.png" alt="" loading="lazy">`;
+    const id = clubOf(src);
+    if (id && ESCUTS.has(id)) return `<img class="${cls}" src="/images/escuts/${id}.webp" alt="" loading="lazy" width="128" height="128">`;
+    // Club nou sense escut desat: el demanem a la federació a través del Worker (si falla, només el nom)
+    if (src) return `<img class="${cls}" src="/api/logo?u=${encodeURIComponent(src)}" alt="" loading="lazy" width="128" height="128" onerror="this.outerHTML='<span class=&quot;${cls} logo--none&quot; aria-hidden=&quot;true&quot;></span>'">`;
+    return `<span class="${cls} logo--none" aria-hidden="true"></span>`;
   };
+
   const dt = (iso) => (iso ? new Date(iso.length > 10 ? iso : iso + "T12:00") : null);
   const hasTime = (iso) => !!iso && iso.length > 10;
 
@@ -71,9 +70,9 @@ const MOSTRAR_ESCUTS = false;
     return `<article class="mcard ${type === "last" ? "mcard--last" : ""}">
       <p class="mcard__label">${title}</p>
       <div class="mcard__teams">
-        <div class="mcard__team ${m.barberaLocal ? "is-us" : ""}">${m.barberaLocal && !MOSTRAR_ESCUTS ? CREST : logo(m.logoLocal, "mcard__logo", m.local)}<span>${esc(m.local)}</span></div>
+        <div class="mcard__team ${m.barberaLocal ? "is-us" : ""}">${logo(m.logoLocal, "mcard__logo", m.local)}<span>${esc(m.local)}</span></div>
         <div class="mcard__mid">${mid}</div>
-        <div class="mcard__team ${m.barberaVisitant ? "is-us" : ""}">${m.barberaVisitant && !MOSTRAR_ESCUTS ? CREST : logo(m.logoVisitant, "mcard__logo", m.visitant)}<span>${esc(m.visitant)}</span></div>
+        <div class="mcard__team ${m.barberaVisitant ? "is-us" : ""}">${logo(m.logoVisitant, "mcard__logo", m.visitant)}<span>${esc(m.visitant)}</span></div>
       </div>
       <p class="mcard__when">${esc(when.charAt(0).toUpperCase() + when.slice(1))}</p>
       ${m.lloc ? `<p class="mcard__where">${venue(m.lloc)}</p>` : ""}
