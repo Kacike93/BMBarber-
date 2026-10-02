@@ -27,7 +27,7 @@ const MOSTRAR_ESCUTS = true;
     if (!MOSTRAR_ESCUTS) return "";
     if (/barber/i.test(name || "")) return `<img class="${cls} logo--own" src="/images/escudo.png" alt="" loading="lazy">`;
     const id = clubOf(src);
-    if (id && ESCUTS.has(id)) return `<img class="${cls}" src="/images/escuts/${id}.webp" alt="" loading="lazy" width="128" height="128">`;
+    if (id && ESCUTS.has(id)) return `<img class="${cls} logo--esc" src="/images/escuts/${id}.webp?v=2" alt="" loading="lazy" width="128" height="128">`;
     // Club nou sense escut desat: el demanem a la federació a través del Worker (si falla, només el nom)
     if (src) return `<img class="${cls}" src="/api/logo?u=${encodeURIComponent(src)}" alt="" loading="lazy" width="128" height="128" onerror="this.outerHTML='<span class=&quot;${cls} logo--none&quot; aria-hidden=&quot;true&quot;></span>'">`;
     return `<span class="${cls} logo--none" aria-hidden="true"></span>`;
