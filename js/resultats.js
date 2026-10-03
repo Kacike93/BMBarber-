@@ -38,7 +38,9 @@ const MOSTRAR_ESCUTS = true;
 
   async function getJSON(url) {
     if (window.__SAMPLE && window.__SAMPLE[url]) return window.__SAMPLE[url];
-    const r = await fetch(url);
+    // Adreça única cada minut i sense memòria del navegador: sempre dades fresques
+    const sep = url.includes("?") ? "&" : "?";
+    const r = await fetch(url + sep + "t=" + Math.floor(Date.now() / 60000), { cache: "no-store" });
     const d = await r.json();
     if (!r.ok || d.error) throw Object.assign(new Error(d.error || r.status), { data: d });
     return d;

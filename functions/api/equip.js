@@ -165,7 +165,7 @@ export async function onRequestList() {
 }
 
 // Resposta per al navegador: que no la guardi més d'un minut
-const fresh = (r) => new Response(r.body, { status: r.status, headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "public, max-age=60" } });
+const fresh = (r) => new Response(r.body, { status: r.status, headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store", "X-Versio": "5" } });
 
 export async function onRequestGet(context) {
   const url = new URL(context.request.url);
@@ -173,7 +173,7 @@ export async function onRequestGet(context) {
   if (!eq) return json({ error: "Equip desconegut" }, 404, 0);
 
   const cache = caches.default;
-  const cacheKey = new Request(`${url.origin}/api/equip?id=${eq.id}&f=${eq.fase}&e=${eq.equip}&v=4`);
+  const cacheKey = new Request(`${url.origin}/api/equip?id=${eq.id}&f=${eq.fase}&e=${eq.equip}&v=5`);
   // La memòria cau es comprova a mà: si les dades tenen més de 10 minuts, es tornen a llegir
   let stale = null;
   try {
@@ -190,7 +190,7 @@ export async function onRequestGet(context) {
     if (!res.ok) throw new Error(`La federació ha respost ${res.status}`);
     const data = parseEquip(await res.text(), eq.url);
     if (!data.classificacio.length && !data.partits.length) throw new Error("No s'han trobat dades a la pàgina");
-    const body = JSON.stringify({ id: eq.id, nom: eq.nom, font: eq.url, actualitzat: new Date().toISOString(), ...data });
+    const body = JSON.stringify({ versio: 5, id: eq.id, nom: eq.nom, font: eq.url, actualitzat: new Date().toISOString(), ...data });
     const stored = new Response(body, { headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "public, max-age=86400", "X-Llegit": String(Date.now()) } });
     try { context.waitUntil(cache.put(cacheKey, stored.clone())); } catch (_) {}
     return fresh(stored);

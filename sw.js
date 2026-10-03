@@ -1,5 +1,5 @@
 // BM Barberà · Service worker (permet instal·lar la web com a app i veure-la sense connexió)
-const VERSION = "bmb-v1";
+const VERSION = "bmb-v2";
 const CORE = ["/", "/index.html", "/gracias.html", "/manifest.webmanifest", "/images/escudo.png", "/images/icon-192.png", "/images/icon-512.png"];
 
 self.addEventListener("install", (e) => {
@@ -14,9 +14,10 @@ self.addEventListener("fetch", (e) => {
   if (req.method !== "GET") return;
   const url = new URL(req.url);
   if (url.origin !== location.origin) return; // fonts, formularis, etc.: com sempre
+  if (url.pathname.startsWith("/api/")) return; // dades en directe: sempre directes del servidor
 
   // Pàgines i dades en directe: primer la xarxa (sempre el més nou), si no hi ha connexió la còpia guardada
-  if (req.mode === "navigate" || url.pathname.startsWith("/api/")) {
+  if (req.mode === "navigate") {
     e.respondWith(
       fetch(req).then((res) => {
         if (res.ok) { const copy = res.clone(); caches.open(VERSION).then((c) => c.put(req, copy)); }
