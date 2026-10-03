@@ -36,7 +36,7 @@ export const EQUIPS = EQUIPS_CONFIG.map((e) => ({
   url: `https://resultadosbalonmano.isquad.es/equipo.php?seleccion=0&id_superficie=1&id_equipo=${e.equip}&id=${e.fase}`,
 }));
 
-const CACHE_SEGONS = 1800; // 30 minuts
+const CACHE_SEGONS = 600; // 10 minuts: cada quant es torna a llegir la federació
 
 // Arregla textos mal codificats de la federació (p. ex. "PAVELLÃ“" -> "PAVELLÓ")
 const CP1252 = { "€": 0x80, "‚": 0x82, "ƒ": 0x83, "„": 0x84, "…": 0x85, "†": 0x86, "‡": 0x87, "ˆ": 0x88, "‰": 0x89, "Š": 0x8a, "‹": 0x8b, "Œ": 0x8c, "Ž": 0x8e, "‘": 0x91, "’": 0x92, "“": 0x93, "”": 0x94, "•": 0x95, "–": 0x96, "—": 0x97, "˜": 0x98, "™": 0x99, "š": 0x9a, "›": 0x9b, "œ": 0x9c, "ž": 0x9e, "Ÿ": 0x9f };
@@ -164,24 +164,38 @@ export async function onRequestList() {
   return r;
 }
 
+// Resposta per al navegador: que no la guardi més d'un minut
+const fresh = (r) => new Response(r.body, { status: r.status, headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "public, max-age=60" } });
+
 export async function onRequestGet(context) {
   const url = new URL(context.request.url);
   const eq = EQUIPS.find((e) => e.id === url.searchParams.get("id"));
   if (!eq) return json({ error: "Equip desconegut" }, 404, 0);
 
   const cache = caches.default;
-  const cacheKey = new Request(`${url.origin}/api/equip?id=${eq.id}&f=${eq.fase}&e=${eq.equip}`);
-  try { const hit = await cache.match(cacheKey); if (hit) return hit; } catch (_) {}
+  const cacheKey = new Request(`${url.origin}/api/equip?id=${eq.id}&f=${eq.fase}&e=${eq.equip}&v=4`);
+  // La memòria cau es comprova a mà: si les dades tenen més de 10 minuts, es tornen a llegir
+  let stale = null;
+  try {
+    const hit = await cache.match(cacheKey);
+    if (hit) {
+      const age = Date.now() - Number(hit.headers.get("X-Llegit") || 0);
+      if (age < CACHE_SEGONS * 1000) return fresh(hit);
+      stale = hit;
+    }
+  } catch (_) {}
 
   try {
-    const res = await fetch(eq.url, { headers: { "User-Agent": "Mozilla/5.0 (compatible; BMBarberaWeb/1.0)", "Accept-Language": "es,ca;q=0.9" } });
+    const res = await fetch(eq.url, { headers: { "User-Agent": "Mozilla/5.0 (compatible; BMBarberaWeb/1.0)", "Accept-Language": "es,ca;q=0.9" }, cache: "no-store" });
     if (!res.ok) throw new Error(`La federació ha respost ${res.status}`);
     const data = parseEquip(await res.text(), eq.url);
     if (!data.classificacio.length && !data.partits.length) throw new Error("No s'han trobat dades a la pàgina");
-    const out = json({ id: eq.id, nom: eq.nom, font: eq.url, actualitzat: new Date().toISOString(), ...data });
-    try { context.waitUntil(cache.put(cacheKey, out.clone())); } catch (_) {}
-    return out;
+    const body = JSON.stringify({ id: eq.id, nom: eq.nom, font: eq.url, actualitzat: new Date().toISOString(), ...data });
+    const stored = new Response(body, { headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "public, max-age=86400", "X-Llegit": String(Date.now()) } });
+    try { context.waitUntil(cache.put(cacheKey, stored.clone())); } catch (_) {}
+    return fresh(stored);
   } catch (err) {
+    if (stale) return fresh(stale); // la federació no respon: mostrem l'última còpia
     return json({ error: String(err.message || err), font: eq.url }, 502, 0);
   }
 }
