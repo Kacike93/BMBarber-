@@ -114,10 +114,18 @@ const MOSTRAR_ESCUTS = true;
     const ps = d.partits || [];
     const played = ps.filter((m) => m.golsLocal != null && m.estat === "finalitzat");
     const pending = ps.filter((m) => m.estat !== "finalitzat");
+    // Partits sense jugar amb data ja passada (p. ex. suspesos pel temps): es marquen com a ajornats
+    // i no bloquegen el "Proper partit" fins que la federació hi posi una data nova.
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    pending.forEach((m) => { if (m.estat === "pendent" && m.data && dt(m.data) < today) m.estat = "ajornat"; });
+    const upcoming = pending.filter((m) => m.estat !== "ajornat");
     const last = played.slice().sort((a, b) => (b.data || "").localeCompare(a.data || ""))[0] || null;
-    const next = pending.filter((m) => m.data).sort((a, b) => a.data.localeCompare(b.data))[0] || pending[0] || null;
+    const next = upcoming.filter((m) => m.data).sort((a, b) => a.data.localeCompare(b.data))[0] || upcoming[0] || null;
     const phaseDone = ps.length > 0 && pending.length === 0;
-    $("res-cards").innerHTML = (phaseDone ? `<div class="phase-done"><strong>Fase finalitzada</strong><span>Aviat començarà la següent fase. Mentrestant, aquí tens tots els resultats.</span></div>` : "") + card(next, "next") + card(last, "last");
+    const nextCard = !next && upcoming.length < pending.length
+      ? `<article class="mcard"><p class="mcard__label">Proper partit</p><p class="mcard__empty">Partit ajornat, pendent de nova data.</p></article>`
+      : card(next, "next");
+    $("res-cards").innerHTML = (phaseDone ? `<div class="phase-done"><strong>Fase finalitzada</strong><span>Aviat començarà la següent fase. Mentrestant, aquí tens tots els resultats.</span></div>` : "") + nextCard + card(last, "last");
 
     $("res-table").innerHTML = (d.classificacio || []).map((r) => {
       const dif = r.gf - r.gc;
