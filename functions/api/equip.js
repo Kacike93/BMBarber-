@@ -11,7 +11,7 @@
 //  · fase:  canvia quan comença una fase nova -> NOMÉS CAL CANVIAR AQUEST NÚMERO.
 //  grup: "masculi", "femeni" o "mixt" · curt: text del botó · nom: títol
 // ─────────────────────────────────────────────────────────────────────────────
-import { text, firstInt, niceName } from "./classificacio.js";
+import { text, firstInt, niceName, FED_HEADERS } from "./classificacio.js";
 
 const EQUIPS_CONFIG = [
   // MASCULÍ
@@ -186,7 +186,7 @@ export async function onRequestGet(context) {
   } catch (_) {}
 
   try {
-    const res = await fetch(eq.url, { headers: { "User-Agent": "Mozilla/5.0 (compatible; BMBarberaWeb/1.0)", "Accept-Language": "es,ca;q=0.9" }, cache: "no-store" });
+    const res = await fetch(eq.url, { headers: FED_HEADERS, cache: "no-store" });
     if (!res.ok) throw new Error(`La federació ha respost ${res.status}`);
     const data = parseEquip(await res.text(), eq.url);
     if (!data.classificacio.length && !data.partits.length) throw new Error("No s'han trobat dades a la pàgina");
