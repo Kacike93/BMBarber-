@@ -349,3 +349,15 @@ if ("serviceWorker" in navigator && location.protocol === "https:") {
     }
   }));
 })();
+
+// Logo: torna a dalt de tot. L'enllaç apunta a la capçalera (#top), però com que és fixa
+// el navegador creu que ja hi és i no es mou; per això fem el desplaçament a mà.
+document.querySelectorAll('.brand[href="#top"]').forEach((a) => a.addEventListener("click", (e) => {
+  e.preventDefault();
+  menuBtn.setAttribute("aria-expanded", "false");
+  menuBtn.setAttribute("aria-label", "Obre el menú");
+  nav.classList.remove("is-open");
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
+  if (location.hash) history.replaceState(null, "", location.pathname + location.search);
+}));
