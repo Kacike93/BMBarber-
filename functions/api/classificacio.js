@@ -7,6 +7,15 @@
 const URL_CLASSIFICACIO =
   "https://resultadosbalonmano.isquad.es/clasificacion.php?seleccion=0&id=1038541&id_ambito=0&id_territorial=17&id_superficie=1&iframe=0&id_categoria=3077&id_competicion=211864";
 
+// Capçaleres per llegir la federació. Des de novembre de 2026 iSquad envia les pàgines clàssiques
+// a la seva web nova (BETA, que es carrega amb JavaScript i no té taules). La galeta
+// "resultados_version=clasica-sesion" és la del botó «Versió clàssica» i fa que tornin l'HTML de sempre.
+export const FED_HEADERS = {
+  "User-Agent": "Mozilla/5.0 (compatible; BMBarberaWeb/1.0)",
+  "Accept-Language": "es,ca;q=0.9",
+  Cookie: "resultados_version=clasica-sesion",
+};
+
 const NAMED = { aacute: "á", eacute: "é", iacute: "í", oacute: "ó", uacute: "ú", Aacute: "Á", Eacute: "É", Iacute: "Í", Oacute: "Ó", Uacute: "Ú", agrave: "à", egrave: "è", ograve: "ò", Agrave: "À", Egrave: "È", Ograve: "Ò", ccedil: "ç", Ccedil: "Ç", ntilde: "ñ", Ntilde: "Ñ", uuml: "ü", Uuml: "Ü", iuml: "ï", Iuml: "Ï", middot: "·", ordf: "ª", ordm: "º" };
 export const decode = (s) =>
   s
@@ -111,12 +120,7 @@ export async function onRequestGet(context) {
   } catch (_) { /* sense memòria cau: continuem */ }
 
   try {
-    const res = await fetch(URL_CLASSIFICACIO, {
-      headers: {
-        "User-Agent": "Mozilla/5.0 (compatible; BMBarberaWeb/1.0)",
-        "Accept-Language": "es,ca;q=0.9",
-      },
-    });
+    const res = await fetch(URL_CLASSIFICACIO, { headers: FED_HEADERS });
     if (!res.ok) throw new Error(`La federació ha respost ${res.status}`);
     const data = parse(await res.text());
     const response = new Response(JSON.stringify(data), {
